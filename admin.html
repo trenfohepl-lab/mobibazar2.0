@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Store Admin Panel</title>
+<style>
+:root{--bg:#050816;--card:#0c1226;--line:#1e293b;--tx:#e2e8f0;--mut:#94a3b8;--c1:#06b6d4;--c2:#10b981;--red:#ef4444;--amb:#f59e0b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+button,input,select,textarea{font:inherit;color:inherit}
+.hide{display:none!important}
+.wrap{max-width:900px;margin:0 auto;padding:14px}
+header{position:sticky;top:0;z-index:20;background:rgba(5,8,22,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;padding-bottom:10px}
+h1{font-size:17px;margin:0}
+h1 span{background:linear-gradient(90deg,#22d3ee,#34d399);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:0 14px 10px;max-width:900px;margin:0 auto}
+.tab{flex:none;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:#0b1020;color:var(--mut);font-weight:700;font-size:13px;cursor:pointer}
+.tab.on{background:linear-gradient(135deg,#06b6d4,#10b981);color:#021016;border-color:transparent}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
+@media(min-width:600px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-size:22px}.stat small{color:var(--mut)}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:700;font-size:14px;cursor:pointer;background:#1e293b}
+.btn.pri{background:linear-gradient(135deg,#06b6d4,#10b981);color:#021016}
+.btn.red{background:rgba(239,68,68,.15);color:#fca5a5}
+.btn.sm{padding:7px 10px;font-size:12px;border-radius:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row.between{justify-content:space-between}
+input,select,textarea{width:100%;background:#070b1a;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px}
+input[type=checkbox]{width:auto}
+input[type=color]{padding:2px;height:38px}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:4px;font-weight:600}
+.grid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.grid .full{grid-column:1/-1}
+@media(min-width:700px){.grid.g3{grid-template-columns:repeat(3,1fr)}}
+.pitem{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.pitem .info{min-width:0;flex:1 1 200px}
+.pitem .nm{font-weight:800}
+.pitem .sub{font-size:12px;color:var(--mut)}
+.badge{display:inline-block;font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:6px}
+.b-in{background:rgba(16,185,129,.15);color:#6ee7b7}.b-out{background:rgba(239,68,68,.15);color:#fca5a5}
+.sw{width:14px;height:14px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px;border:1px solid #fff3}
+#modal,#billModal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+#modal .box,#billModal .box{background:#0a0f20;border:1px solid var(--line);border-radius:20px 20px 0 0;width:100%;max-width:720px;max-height:92vh;overflow:auto;padding:16px}
+@media(min-width:700px){#modal,#billModal{align-items:center}#modal .box,#billModal .box{border-radius:20px}}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;background:#0c1226;border:1px solid #334155;padding:10px 18px;border-radius:99px;font-size:14px;transition:.3s;z-index:90;pointer-events:none}
+#toast.on{opacity:1;transform:translateX(-50%)}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login .card{width:100%;max-width:340px}
+.note{font-size:12px;color:var(--mut);line-height:1.5}
+.warn{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.07)}
+.tog{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--tx)}
+#loader{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:95;background:#0c1226;border:1px solid #334155;border-radius:14px;padding:10px 14px;min-width:240px;font-size:13px;box-shadow:0 10px 30px #0008}
+#loader .bar{height:6px;border-radius:9px;background:#1e293b;margin-top:8px;overflow:hidden}
+#loader .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#06b6d4,#10b981);transition:width .15s}
+.spin{width:14px;height:14px;border:2px solid #334155;border-top-color:#22d3ee;border-radius:50%;display:inline-block;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="login">
+  <div class="card">
+    <h1 style="margin-bottom:4px">Store <span>Admin</span></h1>
+    <p class="note" style="margin:0 0 14px">Manage your store. Sign in with your email and password.</p>
+    <input id="em" type="email" placeholder="Email address" autocomplete="username" style="margin-bottom:8px">
+    <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+    <button class="btn pri" style="width:100%;margin-top:10px" onclick="doLogin()">Login</button>
+    <p class="note" id="loginMsg" style="margin-top:10px;color:#fca5a5"></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hide">
+  <header>
+    <div class="wrap">
+      <h1>Store <span>Admin</span></h1>
+      <div class="row">
+        <a class="btn sm" href="index.html" target="_blank" style="text-decoration:none;color:inherit">Website ↗</a>
+        <button class="btn sm" onclick="logout()">Logout</button>
+      </div>
+    </div>
+    <div class="tabs" id="tabs"></div>
+  </header>
+  <main class="wrap" id="main"></main>
+</div>
+
+<div id="modal" class="hide" onclick="if(event.target===this)closeModal()"><div class="box" id="modalBox"></div></div>
+<div id="billModal" class="hide"><div class="box" id="billBox"></div></div>
+<div id="toast"></div>
+<div id="loader" class="hide"><div class="row"><span class="spin"></span><span id="lTxt">Uploading…</span></div><div class="bar"><i id="lBar"></i></div></div>
+
+<script>
+/* ===== Sample data for a brand-new store ===== */
+const DEF_STORE = {
+  name: 'TrueDeals Mobile Hub',
+  whatsapp: '919876543210',
+  phone: '+919876543210',
+  shortAddress: 'Karol Bagh, Delhi',
+  address: 'Shop 12, Gaffar Market, Karol Bagh, New Delhi 110005',
+  openHour: 10, closeHour: 21,
+  hoursText: 'Open daily, 10 AM to 9 PM',
+  customers: '5,000+', rating: '4.8', since: '2016',
+  offer: '🪔 Festive Offer: Book on WhatsApp and get ₹500 extra off!',
+  branchName: 'Main Branch', branch2Name: '', address2: '', phone2: '', whatsapp2: ''
+};
+const DEF_PHONES = [
+  { id:1, brand:'Apple', name:'iPhone 14', color:'Midnight', ram:6, storage:128, battery:89, condition:'Mint', score:'10/10', price:44999, mrp:79900, box:'Box + Original 20W Charger', flagship:true, stock:true, left:1, tag:'Just Arrived', os:'iOS', age:'14 months old', warranty:'Store warranty 7 days', cam:'iphone', body:['#3a4152','#12161f'], wp:['#0ea5e9','#7c3aed'], glow:'#06b6d4' },
+  { id:2, brand:'Apple', name:'iPhone 13', color:'Starlight', ram:4, storage:128, battery:87, condition:'Superb', score:'9.5/10', price:34999, mrp:69900, box:'Box + Cable', flagship:true, stock:true, left:2, tag:'Best Seller', os:'iOS', age:'2 years old', warranty:'Store warranty 7 days', warn:{Speaker:'Light wear on the speaker grill, sound is perfectly fine'}, cam:'iphone', body:['#f4efe6','#cfc6b6'], wp:['#f472b6','#6366f1'], glow:'#f4efe6' },
+  { id:3, brand:'OnePlus', name:'OnePlus 11R 5G', color:'Sonic Black', ram:8, storage:128, battery:94, condition:'Mint', score:'10/10', price:22999, mrp:39999, box:'Box + Original 100W Charger', flagship:false, stock:true, left:2, tag:'Hot Deal', os:'Android', age:'9 months old', warranty:'Brand warranty till Jun 2027', cam:'oneplus', body:['#454a55','#101319'], wp:['#ef4444','#f97316'], glow:'#ef4444' },
+  { id:4, brand:'Samsung', name:'Samsung Galaxy S23', color:'Phantom Black', ram:8, storage:256, battery:91, condition:'Superb', score:'9.5/10', price:38999, mrp:89999, box:'Box + Cable', flagship:true, stock:true, left:1, tag:'Flagship', os:'Android', age:'1.5 years old', warranty:'Store warranty 7 days', cam:'samsung', body:['#2d2d33','#0b0b0e'], wp:['#8b5cf6','#22d3ee'], glow:'#8b5cf6' },
+  { id:5, brand:'Samsung', name:'Samsung Galaxy S21 FE', color:'Graphite', ram:8, storage:128, battery:84, condition:'Good', score:'9/10', price:18499, mrp:54999, box:'Phone + Charger', flagship:false, stock:true, left:3, tag:'', os:'Android', age:'3 years old', warranty:'Store warranty 7 days', warn:{Body:'Light hairline scratches on the frame'}, cam:'samsung', body:['#757a85','#2f3239'], wp:['#10b981','#0ea5e9'], glow:'#94a3b8' },
+  { id:6, brand:'Vivo', name:'Vivo V29 5G', color:'Peak Blue', ram:8, storage:128, battery:92, condition:'Mint', score:'10/10', price:16499, mrp:32999, box:'Box + Original 80W Charger', flagship:false, stock:true, left:2, tag:'Hot Deal', os:'Android', age:'1 year old', warranty:'Brand warranty till Aug 2027', cam:'vivo', body:['#6bb0ff','#2250c9'], wp:['#f59e0b','#ec4899'], glow:'#3b82f6' },
+  { id:7, brand:'Realme', name:'Realme 12 Pro+ 5G', color:'Submarine Blue', ram:8, storage:256, battery:96, condition:'Mint', score:'10/10', price:14499, mrp:29999, box:'Full Box + Charger', flagship:false, stock:false, left:0, tag:'', os:'Android', age:'7 months old', warranty:'Brand warranty till Mar 2027', cam:'realme', body:['#34e8c8','#0b6aa5'], wp:['#22d3ee','#3b82f6'], glow:'#14b8a6' },
+  { id:8, brand:'Xiaomi', name:'Redmi Note 13 Pro', color:'Arctic White', ram:8, storage:128, battery:95, condition:'Superb', score:'9.5/10', price:12999, mrp:25999, box:'Box + Original 67W Charger', flagship:false, stock:true, left:3, tag:'Budget King', os:'Android', age:'8 months old', warranty:'Brand warranty till Mar 2027', cam:'redmi', body:['#ffffff','#cdd5e1'], wp:['#fb923c','#e11d48'], glow:'#e2e8f0' }
+];
+
+
+/* ===== CLOUD CONFIG ===== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAUJGlDUuFc0_PiQi4OwLKGq2VevLo3rI0",
+  authDomain: "mobile-shop-bb3ee.firebaseapp.com",
+  databaseURL: "https://mobile-shop-bb3ee-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "mobile-shop-bb3ee",
+  storageBucket: "mobile-shop-bb3ee.firebasestorage.app",
+  messagingSenderId: "234370721702",
+  appId: "1:234370721702:web:your_web_app_id"
+};
+let STORE_ID = "", base = null;
+const CLOUDINARY_CLOUD_NAME = "xtzxhfrp";          // now used ONLY for the private payment screenshot
+const CLOUDINARY_UPLOAD_PRESET = "mobibazar_preset";
+/* Phone photos, logo and category images go to your Cloudflare Worker (GitHub + jsDelivr CDN).
+   Put your Worker address here, e.g. https://photo-worker.yourname.workers.dev */
+const WORKER_URL = "https://YOUR-WORKER.YOUR-SUBDOMAIN.workers.dev";
+const workerOk = () => /^https:\/\/.+/.test(WORKER_URL) && !WORKER_URL.includes('YOUR-WORKER');
+const isCdnUrl = u => /^https:\/\/cdn\.jsdelivr\.net\/gh\//.test(String(u || ''));
+function getSecret(reset){
+  try{ if(reset) localStorage.removeItem('photoSecret'); }catch(e){}
+  let k = ''; try{ k = localStorage.getItem('photoSecret') || ''; }catch(e){}
+  if(!k){
+    k = (prompt('Enter the photo upload password (ask your developer)') || '').trim();
+    if(k){ try{ localStorage.setItem('photoSecret', k); }catch(e){} }
+  }
+  return k;
+}
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+const $ = s => document.querySelector(s);
+const inr = n => '₹' + Number(n||0).toLocaleString('en-IN');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CAMS = ['iphone','samsung','oneplus','vivo','realme','redmi'];
+const CONDS = ['Mint','Superb','Good','Fair','Open box','Seal cut'];
+const SCORE = {Mint:'10/10',Superb:'9.5/10',Good:'9/10',Fair:'8/10','Open box':'10/10','Seal cut':'10/10'};
+
+const DEF_BRANDS = ['Apple','OnePlus','Samsung','Vivo','Realme','Xiaomi','Google Pixel'];
+const STATUSES = ['Booked','Visiting','Sold','Cancelled'];
+const STCOL = {Booked:'#f59e0b',Visiting:'#06b6d4',Sold:'#10b981',Cancelled:'#ef4444'};
+const PAYS = ['Cash','UPI','Card','EMI'];
+let BILL = null, billSkipped = false;
+let tab = 'phones', q = '', curPhotos = [], sessionUploads = [], synced = false, upN = 0, metaInit = false, pubSig = '';
+let DB = { STORE: structuredClone(DEF_STORE), PHONES: [], CATS: [], ORDERS: [] };
+const arr = v => v ? (Array.isArray(v) ? v.filter(Boolean) : Object.values(v)) : [];
+const byId = a => Object.fromEntries(a.map(x => [x.id, x]));
+function norm(d){
+  d.PHONES.forEach(p => { if(p.photos) p.photos = arr(p.photos); });
+  d.ORDERS.forEach(o => { if(o.log) o.log = arr(o.log); });
+  if(!d.CATS.length) d.CATS = [...new Set([...DEF_BRANDS, ...d.PHONES.map(p=>p.brand)])].map(n => ({name:n, show:true, img:''}));
+  return d;
+}
+/* Save everything under stores/<storeId>/ */
+const pubOf = () => JSON.stringify({ s:DB.STORE, p:DB.PHONES, c:DB.CATS });
+function save(msg){
+  const d = JSON.parse(JSON.stringify({ store:DB.STORE, phones:byId(DB.PHONES), cats:DB.CATS, orders:byId(DB.ORDERS) }));
+  const e = o => Object.keys(o).length ? o : null;
+  const upd = { store:d.store, phones:e(d.phones), cats:d.cats.length ? d.cats : null, orders:e(d.orders) };
+  /* The website reads this tiny value first; it downloads the catalog again only when it changes */
+  const sig = pubOf(); if(sig !== pubSig){ upd['meta/lastUpdated'] = Date.now(); pubSig = sig; }
+  base.update(upd)
+    .then(() => toast(msg || 'Saved successfully ✓'))
+    .catch(err => toast('Could not save: ' + err.message));
+}
+function onSnap(snap){
+  const v = snap.val() || {};
+  BILL = v.billing || null;
+  if(!v.store && !v.phones){
+    synced = true; DB = norm({ STORE:structuredClone(DEF_STORE), PHONES:structuredClone(DEF_PHONES), CATS:[], ORDERS:arr(v.orders) });
+    save('Sample data added to your store'); render(); checkBilling(); return;
+  }
+  DB = norm({ STORE:Object.assign(structuredClone(DEF_STORE), v.store || {}), PHONES:arr(v.phones), CATS:arr(v.cats), ORDERS:arr(v.orders) });
+  synced = true; pubSig = pubOf();
+  if(!(v.meta && v.meta.lastUpdated) && !metaInit){ metaInit = true; base.child('meta/lastUpdated').set(Date.now()); }
+  const ae = document.activeElement;
+  const busy = !$('#modal').classList.contains('hide') || (ae && $('#main').contains(ae) && /INPUT|TEXTAREA|SELECT/.test(ae.tagName));
+  if(!busy) render();
+  checkBilling();
+}
+function toast(m,ms){ const t=$('#toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('on'),ms||2200); }
+
+/* ===== Auth (Firebase Email/Password) ===== */
+function doLogin(){
+  const em = $('#em').value.trim(), pw = $('#pw').value;
+  if(!em || !pw) return toast('Please enter your email and password');
+  auth.signInWithEmailAndPassword(em, pw).catch(e => toast('Sign-in failed: ' + (e.code || e.message)));
+}
+function logout(){ auth.signOut(); }
+$('#pw').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+let listening = false;
+auth.onAuthStateChanged(async u => {
+  if(u){
+    let sid = null;
+    const db = firebase.database(), userKey = u.email.replace(/[.@]/g, '_');
+    try{
+      sid = (await db.ref('users/' + userKey + '/storeId').once('value')).val();
+      if(!sid){                                  // new shopkeeper: create the store link automatically
+        sid = userKey;
+        await db.ref('users/' + userKey + '/storeId').set(sid);
+      }
+      // link this website address to the store (only if the address is not linked yet)
+      const dk = location.hostname.replace(/[.#$\[\]\/]/g, '_');
+      if(dk && !(await db.ref('domains/' + dk).once('value')).val()) await db.ref('domains/' + dk).set(sid);
+    }catch(e){ if(!sid) toast('Setup failed: ' + e.message, 5000); }
+    if(!sid || typeof sid !== 'string'){
+      $('#loginMsg').textContent = 'No store linked to this account. Please contact support.';
+      auth.signOut(); return;
+    }
+    $('#loginMsg').textContent = '';
+    STORE_ID = sid; base = firebase.database().ref(`stores/${STORE_ID}`);
+    $('#login').classList.add('hide'); $('#app').classList.remove('hide'); render();
+    if(!listening){ listening = true; base.on('value', onSnap, err => toast('Database error: ' + err.message)); }
+  } else {
+    if(listening && base){ base.off('value'); listening = false; }
+    synced = false; BILL = null; $('#app').classList.add('hide'); $('#login').classList.remove('hide'); $('#billModal').classList.add('hide');
+  }
+});
+
+/* ===== Tabs ===== */
+const TABS = [['phones','📱 Phones'],['cats','🗂️ Categories'],['orders','🧾 Orders'],['store','🏪 Store'],['settings','⚙️ Settings']];
+function render(){
+  $('#tabs').innerHTML = TABS.map(([k,l]) => `<button class="tab ${tab===k?'on':''}" onclick="tab='${k}';render()">${l}</button>`).join('');
+  $('#main').innerHTML = !synced ? '<div class="card note"><span class="spin"></span> Loading your store data…</div>'
+    : ({phones:vPhones, cats:vCats, orders:vOrders, store:vStore, settings:vSettings})[tab]();
+}
+
+/* ===== PHONES ===== */
+function vPhones(){
+  const P = DB.PHONES, inS = P.filter(p=>p.stock);
+  const val = inS.reduce((a,p)=>a+Number(p.price||0),0);
+  const list = P.filter(p => (p.name+' '+p.brand+' '+p.color).toLowerCase().includes(q.toLowerCase()));
+  return `
+  <div class="stats">
+    <div class="stat"><b>${P.length}</b><small>Total phones</small></div>
+    <div class="stat"><b style="color:#6ee7b7">${inS.length}</b><small>In stock</small></div>
+    <div class="stat"><b style="color:#fca5a5">${P.length-inS.length}</b><small>Sold out</small></div>
+    <div class="stat"><b>${inr(val)}</b><small>Stock value</small></div>
+  </div>
+  <div class="row" style="margin-bottom:12px">
+    <input style="flex:1 1 160px" placeholder="Phone search…" value="${esc(q)}" oninput="q=this.value;renderList()">
+    <button class="btn pri" onclick="editPhone()">+ New Phone</button>
+  </div>
+  <div id="plist">${listHTML(list)}</div>`;
+}
+function listHTML(list){
+  if(!list.length) return '<div class="card note">No phones found.</div>';
+  list = [...list].sort((a,b) => Number(!!a.stock) - Number(!!b.stock));   // sold out first
+  return list.map(p => `
+  <div class="card pitem" ${p.stock ? '' : 'style="border-color:rgba(239,68,68,.65);background:rgba(239,68,68,.1)"'}>
+    <div class="info">
+      <div class="nm" ${p.stock ? '' : 'style="color:#fca5a5"'}>${p.photos?.length ? `<img src="${esc(p.photos[0])}" loading="lazy" decoding="async" style="width:30px;height:30px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:6px">` : `<span class="sw" style="background:${esc(p.body?.[0]||'#444')}"></span>`}${esc(p.name)}
+        ${p.yt?'<span class="badge b-in">▶ YouTube</span>':''}<span class="badge ${p.stock?'b-in':'b-out'}">${p.stock?'IN STOCK'+(p.left?' · '+p.left:''):'SOLD OUT'}</span></div>
+      <div class="sub">🏬 ${esc(p.branch==1 ? (DB.STORE.branch2Name||'Branch 2') : (DB.STORE.branchName||'Branch 1'))} · ${esc(p.brand)} · ${p.ram}GB/${p.storage}GB · 🔋${p.battery}% · ${esc(p.condition)} · <b style="color:#e2e8f0">${inr(p.price)}</b> <s>${inr(p.mrp)}</s></div>
+    </div>
+    <div class="row">
+      <button class="btn sm" onclick="toggleStock(${p.id})">${p.stock?'Mark Sold Out':'Mark In Stock'}</button>
+      <button class="btn sm" onclick="editPhone(${p.id})">Edit</button>
+      <button class="btn sm" onclick="dupPhone(${p.id})">Copy</button>
+      <button class="btn sm red" onclick="delPhone(${p.id})">Delete</button>
+    </div>
+  </div>`).join('');
+}
+function renderList(){
+  const list = DB.PHONES.filter(p => (p.name+' '+p.brand+' '+p.color).toLowerCase().includes(q.toLowerCase()));
+  $('#plist').innerHTML = listHTML(list);
+}
+const nextId = () => Math.max(0, ...DB.PHONES.map(p=>p.id)) + 1;
+function toggleStock(id){
+  const p = DB.PHONES.find(x=>x.id===id); p.stock = !p.stock;
+  p.left = p.stock ? (p.left>0 ? p.left : 1) : 0;
+  save(p.stock ? 'Marked in stock' : 'Marked sold out'); render();
+}
+function dupPhone(id){
+  const c = structuredClone(DB.PHONES.find(x=>x.id===id)); c.id = nextId(); c.name += ' (copy)';
+  DB.PHONES.push(c); save('Copy created'); render();
+}
+function delPhone(id){
+  const p = DB.PHONES.find(x=>x.id===id);
+  if(confirm(`Delete "${p.name}"?`)){ DB.PHONES = DB.PHONES.filter(x=>x.id!==id); save('Deleted'); render(); releaseUrls(p.photos || []); }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-chip]'); if(!b) return;
+  const inp = document.getElementById('f_' + b.dataset.chip); if(inp){ inp.value = b.dataset.val; inp.focus(); }
+});
+function editPhone(id){
+  const p = id ? DB.PHONES.find(x=>x.id===id) : {
+    brand:'Apple', name:'', color:'', ram:8, storage:128, battery:90, condition:'Mint', score:'10/10', price:0, mrp:0,
+    box:'Box + Charger', flagship:false, stock:true, left:1, tag:'', os:'Android', age:'1 year old',
+    warranty:'Store warranty 7 days', cam:'samsung', body:['#3a4152','#12161f'], wp:['#0ea5e9','#7c3aed'], glow:'#06b6d4'
+  };
+  const wk = p.warn ? Object.keys(p.warn)[0] || '' : '', wv = wk ? p.warn[wk] : '';
+  const PART_DEFAULTS = ['Camera','Touch / Display','Screen','Face ID','Fingerprint','Network / SIM','Speaker','Microphone','Charging port','Buttons','Battery','iCloud / Lock','Body / Frame','Back panel'];
+  const DETAIL_DEFAULTS = ['Light scratch, no effect on use','Minor dent on the frame','Hairline scratch on the screen','Light wear, works perfectly','Small mark on back panel'];
+  const usedParts = DB.PHONES.flatMap(x => Object.keys(x.warn||{}));
+  const usedDetails = DB.PHONES.flatMap(x => Object.values(x.warn||{}));
+  const partSug = [...new Set([...PART_DEFAULTS, ...usedParts])].filter(Boolean);
+  const detSug = [...new Set([...usedDetails, ...DETAIL_DEFAULTS])].filter(Boolean);
+  const chips = (target, arr) => `<div class="chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${arr.map(a=>`<button type="button" class="btn sm" style="padding:4px 10px;font-size:12px" data-chip="${target}" data-val="${esc(a)}">${esc(a)}</button>`).join('')}</div>`;
+  const brands = [...new Set([...DB.CATS.map(c=>c.name), ...DB.PHONES.map(x=>x.brand)])];
+  const f = (l,id,v,t='text',x='') => `<div><label>${l}</label><input id="f_${id}" type="${t}" value="${esc(v)}" ${x}></div>`;
+  const sel = (l,id,arr,v) => `<div><label>${l}</label><select id="f_${id}">${arr.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select></div>`;
+  $('#modalBox').innerHTML = `
+  <div class="row between" style="margin-bottom:10px"><h1>${id?'Edit Phone':'New Phone'}</h1><button class="btn sm" onclick="closeModal()">✕</button></div>
+  <div class="grid g3">
+    <div><label>Brand</label><input id="f_brand" list="brandList" value="${esc(p.brand)}"><datalist id="brandList">${brands.map(b=>`<option value="${esc(b)}">`).join('')}</datalist></div>
+    ${f('Model name','name',p.name)}
+    ${f('Color','color',p.color)}
+    ${f('RAM (GB)','ram',p.ram,'number')}
+    ${f('Storage (GB)','storage',p.storage,'number')}
+    ${f('Battery health %','battery',p.battery,'number')}
+    ${sel('Condition','condition',CONDS,p.condition)}
+    ${f('Score (e.g. 9.5/10)','score',p.score)}
+    <div class="full">${f('Condition – extra text (optional, write your own)','condNote',p.condNote||'','text','placeholder="e.g. Open box, 1 week used, bill available"')}</div>
+    ${sel('OS','os',['Android','iOS'],p.os)}
+    ${sel('Network','network',['4G','5G'],p.network||'5G')}
+    ${f('Selling price ₹','price',p.price,'number')}
+    ${f('MRP ₹','mrp',p.mrp,'number')}
+    ${f('Stock count','left',p.left,'number')}
+    <div class="full">${f('Box / Accessories','box',p.box)}</div>
+    ${f('Phone age','age',p.age)}
+    ${f('Warranty','warranty',p.warranty)}
+    ${f('Tag (Hot Deal, Best Seller…)','tag',p.tag)}
+    <div><label>🏬 Branch / Shop</label><select id="f_branch"><option value="0" ${!p.branch?'selected':''}>${esc(DB.STORE.branchName||'Branch 1')}</option><option value="1" ${p.branch==1?'selected':''}>${esc(DB.STORE.branch2Name||'Branch 2')}</option></select></div>
+    <div class="full">${f('Issue – part (optional): tap a suggestion or type a new one','wk',wk,'text','placeholder="Speaker / Body"')}${chips('wk',partSug)}</div>
+    <div class="full">${f('Issue – details (optional)','wv',wv,'text','placeholder="Light scratch, no effect on use"')}${chips('wv',detSug)}</div>
+    ${sel('Camera style (preview image)','cam',CAMS,p.cam)}
+    <div class="tog"><input type="checkbox" id="f_stock" ${p.stock?'checked':''}> In stock</div>
+    <div class="tog"><input type="checkbox" id="f_flagship" ${p.flagship?'checked':''}> Flagship deal</div>
+    <div class="tog"><input type="checkbox" id="f_offer" ${p.offer?'checked':''}> 🔥 Offer Mode (shows under the Offer filter)</div>
+    <div class="full"><label>📷 Phone photos (max 4 — the first photo is the main photo)</label>
+      <div id="photoBox" class="row" style="margin-bottom:8px"></div>
+      <label class="btn sm" style="display:inline-block;margin:0;cursor:pointer;color:inherit">+ Add Photo<input type="file" accept="image/*" multiple class="hide" onchange="addPhotos(this.files);this.value=''"></label>
+      <div class="note" style="margin-top:4px">Photos are resized automatically. If there is no photo, a sample image is shown on your website.</div></div>
+    <div class="full">${f('🎬 YouTube Video / Shorts Link (optional)','yt',p.yt||'','url','placeholder="https://youtube.com/shorts/… or https://youtu.be/…"')}
+      <div class="note" style="margin-top:4px">Upload the video to YouTube (Unlisted is fine) and paste the link here. Customers tap the thumbnail to play it; nothing downloads until they do.</div></div>
+    <div class="full"><label>Phone colors (preview image)</label>
+      <div class="grid" style="grid-template-columns:repeat(5,1fr)">
+        <input type="color" id="f_b1" value="${p.body[0]}" title="Back 1"><input type="color" id="f_b2" value="${p.body[1]}" title="Back 2">
+        <input type="color" id="f_w1" value="${p.wp[0]}" title="Wallpaper 1"><input type="color" id="f_w2" value="${p.wp[1]}" title="Wallpaper 2">
+        <input type="color" id="f_glow" value="${p.glow}" title="Glow">
+      </div>
+      <div class="note" style="margin-top:4px">Back 1 · Back 2 · Screen 1 · Screen 2 · Glow</div></div>
+  </div>
+  <div class="row" style="margin-top:14px;justify-content:flex-end">
+    <button class="btn" onclick="closeModal()">Cancel</button>
+    <button class="btn pri" onclick="savePhone(${id||0})">Save</button>
+  </div>`;
+  curPhotos = [...(p.photos || [])]; sessionUploads = []; renderPhotos();
+  $('#modal').classList.remove('hide');
+  $('#f_condition').addEventListener('change', e => { if(!id) $('#f_score').value = SCORE[e.target.value] || ''; });
+}
+function closeModal(){
+  $('#modal').classList.add('hide');
+  if(sessionUploads.length){ const l = sessionUploads; sessionUploads = []; releaseUrls(l); }   // photos uploaded but never saved
+}
+function savePhone(id){
+  const g = k => $('#f_'+k).value.trim(), n = k => Number(g(k)) || 0;
+  if(upN>0){ toast('Upload in progress — please wait'); return; }
+  if(!g('name')){ toast('Model name is required'); return; }
+  if(n('price')<=0){ toast('Please enter a price'); return; }
+  const yt = g('yt');
+  if(yt && !ytOk(yt)){ toast('That does not look like a YouTube link'); return; }
+  const oldPhotos = id ? [...((DB.PHONES.find(x=>x.id===id) || {}).photos || [])] : [];
+  const o = {
+    id: id || nextId(), brand:g('brand'), name:g('name'), color:g('color'), ram:n('ram'), storage:n('storage'), battery:n('battery'),
+    condition:g('condition'), score:g('score'), price:n('price'), mrp:n('mrp') || n('price'), box:g('box'),
+    flagship:$('#f_flagship').checked, offer:$('#f_offer').checked, branch:Number(g('branch'))||0, stock:$('#f_stock').checked, left:n('left'), tag:g('tag'), os:g('os'), network:g('network'), age:g('age'),
+    warranty:g('warranty'), cam:g('cam'), body:[g('b1'),g('b2')], wp:[g('w1'),g('w2')], glow:g('glow')
+  };
+  if(g('condNote')) o.condNote = g('condNote');
+  if(!o.stock) o.left = 0; else if(o.left<1) o.left = 1;
+  if(curPhotos.length) o.photos = [...curPhotos];
+  if(yt) o.yt = yt;
+  if(g('wk') || g('wv')) o.warn = { [g('wk') || 'Condition note']: g('wv') || 'Minor issue, please check in store' };
+  if(id){ const i = DB.PHONES.findIndex(x=>x.id===id); DB.PHONES[i] = o; } else DB.PHONES.push(o);
+  closeModal(); save(id?'Phone updated':'Phone added'); render();
+  releaseUrls(oldPhotos.filter(u => !curPhotos.includes(u)));   // photos the owner removed from this phone
+}
+
+/* ===== MEDIA: compress + upload ===== */
+const cfgOk = () => CLOUDINARY_CLOUD_NAME !== 'YOUR_CLOUD_NAME' && CLOUDINARY_UPLOAD_PRESET !== 'YOUR_UNSIGNED_PRESET';
+function startUp(t){ upN++; $('#loader').classList.remove('hide'); setUp(0, t); }
+function setUp(p, t){ if(t) $('#lTxt').textContent = t; $('#lBar').style.width = p + '%'; }
+function endUp(){ upN = Math.max(0, upN-1); if(!upN) $('#loader').classList.add('hide'); }
+function compress(file, M = 800){            // max 800px, WebP (0.75) or JPEG fallback
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, M / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width*k); c.height = Math.round(img.height*k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(b => {
+        if(b && b.type === 'image/webp') return res(b);
+        c.toBlob(j => j ? res(j) : rej(new Error('Could not process image')), 'image/jpeg', 0.75);
+      }, 'image/webp', 0.75);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read this image')); };
+    img.src = url;
+  });
+}
+function cloudUpload(blob, kind, label){      // kind: 'image' | 'video'
+  return new Promise((res, rej) => {
+    if(!cfgOk()) return rej(new Error('Uploads are not set up. Please contact support.'));
+    const fd = new FormData(); fd.append('file', blob); fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    const x = new XMLHttpRequest();
+    x.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${kind}/upload`);
+    x.upload.onprogress = e => { if(e.lengthComputable) setUp(Math.round(e.loaded/e.total*100), `${label} ${Math.round(e.loaded/e.total*100)}%`); };
+    x.onload = () => {
+      let j = {}; try{ j = JSON.parse(x.responseText); }catch(e){}
+      if(x.status >= 200 && x.status < 300 && j.secure_url) res(j.secure_url);
+      else rej(new Error((j.error && j.error.message) || ('HTTP ' + x.status)));
+    };
+    x.onerror = () => rej(new Error('Network error'));
+    x.send(fd);
+  });
+}
+/* Upload a photo to the Worker (GitHub + jsDelivr). Returns the permanent CDN URL. */
+function workerUpload(blob, label){
+  return new Promise((res, rej) => {
+    if(!workerOk()) return rej(new Error('Photo server is not set up yet (WORKER_URL in admin.html)'));
+    const key = getSecret(); if(!key) return rej(new Error('Upload password is needed'));
+    const x = new XMLHttpRequest();
+    x.open('POST', WORKER_URL.replace(/\/$/, '') + '/upload');
+    x.setRequestHeader('Content-Type', blob.type || 'image/webp');
+    x.setRequestHeader('X-Admin-Secret', key);
+    x.upload.onprogress = e => { if(e.lengthComputable) setUp(Math.round(e.loaded/e.total*100), `${label||'Photo upload'} ${Math.round(e.loaded/e.total*100)}%`); };
+    x.onload = () => {
+      let j = {}; try{ j = JSON.parse(x.responseText); }catch(e){}
+      if(x.status === 401){ getSecret(true); return rej(new Error('Wrong upload password. Try again.')); }
+      if(x.status >= 200 && x.status < 300 && j.url) res(j.url);
+      else rej(new Error(j.error || ('HTTP ' + x.status)));
+    };
+    x.onerror = () => rej(new Error('Network error'));
+    x.send(blob);
+  });
+}
+/* Ask the Worker to delete a photo from GitHub. Old Cloudinary links are ignored. */
+function workerDelete(url){
+  if(!workerOk() || !isCdnUrl(url)) return;
+  const key = (() => { try{ return localStorage.getItem('photoSecret') || ''; }catch(e){ return ''; } })();
+  if(!key) return;
+  fetch(WORKER_URL.replace(/\/$/, '') + '/delete', { method:'POST', headers:{ 'Content-Type':'application/json', 'X-Admin-Secret':key }, body:JSON.stringify({ url }) }).catch(() => {});
+}
+/* Delete these photos from GitHub, but only the ones no phone / category / logo still uses
+   (a "Copy" of a phone shares the same photo links). */
+function releaseUrls(list){
+  const used = new Set();
+  DB.PHONES.forEach(p => (p.photos || []).forEach(u => used.add(u)));
+  DB.CATS.forEach(c => { if(c.img) used.add(c.img); });
+  if(DB.STORE.logo) used.add(DB.STORE.logo);
+  [...new Set((list || []).filter(Boolean))].forEach(u => { if(isCdnUrl(u) && !used.has(u)) workerDelete(u); });
+}
+const ytOk = u => /^[A-Za-z0-9_-]{11}$/.test(u) || /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)[A-Za-z0-9_-]{11}/.test(u);
+
+async function addPhotos(files){
+  for(const f of [...files]){
+    if(curPhotos.length >= 4){ toast('Max 4 photos'); break; }
+    if(!f.type.startsWith('image/')) continue;
+    startUp('Preparing photo…');
+    try{ const b = await compress(f); const u = await workerUpload(b, 'Photo upload'); sessionUploads.push(u); curPhotos.push(u); renderPhotos(); }
+    catch(e){ toast('Photo upload failed: ' + (e.message||'')); }
+    endUp();
+  }
+}
+function renderPhotos(){
+  const b = $('#photoBox'); if(!b) return;
+  b.innerHTML = curPhotos.length ? curPhotos.map((s,i) => `
+    <div style="position:relative">
+      <img src="${esc(s)}" loading="lazy" decoding="async" style="width:76px;height:76px;object-fit:cover;border-radius:10px;border:2px solid ${i===0?'#10b981':'#1e293b'}">
+      <button class="btn sm red" style="position:absolute;top:-6px;right:-6px;padding:2px 7px" onclick="rmPhoto(${i})">✕</button>
+      ${i===0 ? '<small style="position:absolute;bottom:3px;left:4px;background:#10b981;color:#021016;border-radius:6px;padding:0 5px;font-size:10px;font-weight:800">MAIN</small>'
+               : `<button class="btn sm" style="position:absolute;bottom:3px;left:3px;padding:1px 6px;font-size:10px" onclick="mainPhoto(${i})">Main</button>`}
+    </div>`).join('') : '<span class="note">No photos yet</span>';
+}
+function rmPhoto(i){ curPhotos.splice(i,1); renderPhotos(); }
+function mainPhoto(i){ const [s] = curPhotos.splice(i,1); curPhotos.unshift(s); renderPhotos(); }
+
+
+
+/* ===== SUBSCRIPTION RENEWAL REMINDER ===== */
+function checkBilling(){
+  if(billSkipped || !BILL || !BILL.expiryDate) return;
+  if(!$('#billModal').classList.contains('hide')) return;
+  let ex = String(BILL.expiryDate); if(/^\d{4}-\d{2}-\d{2}$/.test(ex)) ex += 'T23:59:59';
+  const exp = new Date(ex); if(isNaN(exp)) return;
+  const days = Math.ceil((exp - Date.now()) / 864e5);
+  if(days > 3) return;
+  const plan = BILL.plan || 'Standard Plan';
+  const fee = Number(BILL.fee) || (/pro|premium|advanced/i.test(plan) ? 348 : 199);
+  const status = days < 0 ? `Your plan is overdue by ${Math.abs(days)} day${Math.abs(days)!==1?'s':''}.`
+    : days === 0 ? 'Your plan expires today.' : `Your plan expires in ${days} day${days!==1?'s':''}.`;
+  const qr = BILL.qrUrl || (BILL.upiId ? 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(`upi://pay?pa=${BILL.upiId}&pn=${DB.STORE.name}`) : '');
+  $('#billBox').innerHTML = `
+    <h1 style="margin-bottom:6px">Monthly Maintenance Renewal</h1>
+    <div class="card ${days<0?'':'warn'}" style="margin:10px 0;${days<0?'border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.08)':''}">
+      <b style="color:${days<0?'#fca5a5':'#fbbf24'}">${status}</b>
+      <div class="note" style="margin-top:4px">Valid until: ${esc(exp.toLocaleDateString('en-US',{day:'numeric',month:'long',year:'numeric'}))}</div>
+    </div>
+    <div class="row between" style="margin-bottom:12px"><div><div class="note">Current plan</div><b>${esc(plan)}</b></div><div style="text-align:right"><div class="note">Monthly renewal fee</div><b style="font-size:22px">$${fee}</b></div></div>
+    <div style="text-align:center;margin-bottom:12px">
+      ${qr ? `<img src="${esc(qr)}" alt="UPI payment QR code" style="width:210px;height:210px;object-fit:contain;background:#fff;border-radius:14px;padding:8px"><div class="note" style="margin-top:6px">Scan with any UPI app to pay${BILL.upiId?'<br>UPI ID: <b>'+esc(BILL.upiId)+'</b>':''}</div>`
+        : '<div class="note">Payment QR code is not available yet. Please contact support.</div>'}
+    </div>
+    <label>Upload payment screenshot</label>
+    <input type="file" accept="image/*" onchange="sendReceipt(this.files[0]);this.value=''">
+    <div class="note" id="billState" style="margin-top:6px">After paying, upload a screenshot so we can confirm your renewal.</div>
+    <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" onclick="skipBilling()">Remind Me Later (Skip)</button></div>`;
+  $('#billModal').classList.remove('hide');
+}
+function skipBilling(){ billSkipped = true; $('#billModal').classList.add('hide'); }
+async function sendReceipt(f){
+  if(!f) return;
+  if(!f.type.startsWith('image/')) return toast('Please choose an image file');
+  const st = $('#billState'); startUp('Preparing screenshot…');
+  try{
+    const b = await compress(f);
+    const url = await cloudUpload(b, 'image', 'Uploading screenshot');
+    await base.child('payment_receipts').push({ url, plan: (BILL && BILL.plan) || '', uploadedAt: Date.now(), email: auth.currentUser ? auth.currentUser.email : '' });
+    if(st) st.textContent = '✓ Screenshot received. We will confirm your payment shortly.';
+    toast('Payment screenshot sent ✓');
+  }catch(e){ toast('Upload failed: ' + (e.message || '')); }
+  endUp();
+}
+
+/* ===== CATEGORIES ===== */
+function vCats(){
+  const C = DB.CATS;
+  return `
+  <div class="card">
+    <b>New category</b>
+    <div class="row" style="margin-top:8px"><input id="newCat" style="flex:1 1 160px" placeholder="Brand / category name"><button class="btn pri" onclick="addCat()">+ Add</button></div>
+    <p class="note" style="margin-top:8px">These appear as brand filters on your website. An image is optional — add a small logo or icon. Use ↑ ↓ to change the order.</p>
+  </div>
+  ${C.length ? C.map((c,i) => {
+    const n = DB.PHONES.filter(p => p.brand === c.name).length;
+    return `<div class="card pitem">
+      <div class="info"><div class="nm">${c.img ? `<img src="${c.img}" style="width:30px;height:30px;object-fit:cover;border-radius:50%;vertical-align:middle;margin-right:6px">` : '<span class="sw" style="background:#475569"></span>'}${esc(c.name)}
+        <span class="badge ${c.show!==false?'b-in':'b-out'}">${c.show!==false?'VISIBLE':'HIDDEN'}</span></div>
+        <div class="sub">${n} phone${n!==1?'s':''}</div></div>
+      <div class="row">
+        <button class="btn sm" onclick="moveCat(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button class="btn sm" onclick="moveCat(${i},1)" ${i===C.length-1?'disabled':''}>↓</button>
+        <button class="btn sm" onclick="toggleCat(${i})">${c.show!==false?'Hide':'Show'}</button>
+        <label class="btn sm" style="margin:0;cursor:pointer;color:inherit">🖼 ${c.img?'Change':'Image'}<input type="file" accept="image/*" class="hide" onchange="catImg(${i},this.files[0]);this.value=''"></label>
+        ${c.img ? `<button class="btn sm" onclick="rmCatImg(${i})">Remove image</button>` : ''}
+        <button class="btn sm" onclick="renameCat(${i})">Rename</button>
+        <button class="btn sm red" onclick="delCat(${i})">Delete</button>
+      </div></div>`;
+  }).join('') : '<div class="card note">No categories yet.</div>'}`;
+}
+function addCat(){
+  const n = $('#newCat').value.trim();
+  if(!n) return toast('Please enter a name');
+  if(DB.CATS.some(c => c.name.toLowerCase() === n.toLowerCase())) return toast('This category already exists');
+  DB.CATS.push({name:n, show:true, img:''}); save('Category added'); render();
+}
+function moveCat(i,d){ const j=i+d; if(j<0||j>=DB.CATS.length) return; [DB.CATS[i],DB.CATS[j]]=[DB.CATS[j],DB.CATS[i]]; save('Order updated'); render(); }
+function toggleCat(i){ DB.CATS[i].show = DB.CATS[i].show === false; save(DB.CATS[i].show ? 'Category visible' : 'Category hidden'); render(); }
+function renameCat(i){
+  const old = DB.CATS[i].name, n = (prompt('New name', old)||'').trim();
+  if(!n || n===old) return;
+  if(DB.CATS.some((c,j) => j!==i && c.name.toLowerCase()===n.toLowerCase())) return toast('This name already exists');
+  DB.CATS[i].name = n; DB.PHONES.forEach(p => { if(p.brand===old) p.brand = n; });
+  save('Renamed'); render();
+}
+function delCat(i){
+  const c = DB.CATS[i], n = DB.PHONES.filter(p => p.brand===c.name).length;
+  if(confirm(`Delete the category "${c.name}"?` + (n ? `\n\n${n} phone(s) use this brand. They will not be deleted; only the category will be removed from the list.` : ''))){ DB.CATS.splice(i,1); save('Category deleted'); render(); releaseUrls([c.img]); }
+}
+async function catImg(i,f){
+  if(!f) return;
+  startUp('Preparing image…');
+  try{ const b = await compress(f, 120); const old = DB.CATS[i].img; DB.CATS[i].img = await workerUpload(b, 'Image upload'); save('Image added'); render(); releaseUrls([old]); }
+  catch(e){ toast('Image upload failed: ' + (e.message||'')); }
+  endUp();
+}
+function rmCatImg(i){ const old = DB.CATS[i].img; DB.CATS[i].img = ''; save('Image removed'); render(); releaseUrls([old]); }
+
+/* ===== ORDERS (booking tracking) ===== */
+let ofilter = 'All', oq = '';
+const fdt = t => new Date(t).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const nextOid = () => Math.max(0, ...DB.ORDERS.map(o=>o.id)) + 1;
+function vOrders(){
+  const O = DB.ORDERS, cnt = s => O.filter(o=>o.status===s).length;
+  const rev = O.filter(o=>o.status==='Sold').reduce((a,o)=>a+Number(o.price||0),0);
+  return `
+  <div class="stats">
+    <div class="stat"><b>${O.length}</b><small>Total orders</small></div>
+    <div class="stat"><b style="color:#fbbf24">${cnt('Booked')+cnt('Visiting')}</b><small>Active (Booked/Visiting)</small></div>
+    <div class="stat"><b style="color:#6ee7b7">${cnt('Sold')}</b><small>Sold</small></div>
+    <div class="stat"><b>${inr(rev)}</b><small>Sale amount</small></div>
+  </div>
+  <div class="row" style="margin-bottom:10px">
+    <input style="flex:1 1 160px" placeholder="Customer / phone search…" value="${esc(oq)}" oninput="oq=this.value;renderOList()">
+    <button class="btn pri" onclick="editOrder()">+ New Order</button>
+  </div>
+  <div class="row" style="margin-bottom:12px">${['All',...STATUSES].map(s => `<button class="tab ${ofilter===s?'on':''}" onclick="ofilter='${s}';render()">${s}${s==='All'?'':' · '+cnt(s)}</button>`).join('')}</div>
+  <div id="olist">${oListHTML()}</div>
+  <p class="note">Orders are <b>private</b>. Only you can see them after signing in, and they never appear on your website. Add an entry here when a WhatsApp booking arrives. When you mark an order "Sold", stock reduces automatically.</p>`;
+}
+function oListHTML(){
+  const t = oq.toLowerCase();
+  const list = DB.ORDERS.filter(o => (ofilter==='All' || o.status===ofilter) && (`${o.customer} ${o.mobile} ${o.phoneName}`).toLowerCase().includes(t)).sort((a,b)=>b.created-a.created);
+  if(!list.length) return '<div class="card note">No orders found.</div>';
+  return list.map(o => {
+    const last = (o.log||[]).slice(-1)[0];
+    return `<div class="card">
+    <div class="row between">
+      <div class="nm">${esc(o.customer||'Customer')} <span class="badge" style="background:${STCOL[o.status]}22;color:${STCOL[o.status]}">${o.status.toUpperCase()}</span></div>
+      <div class="sub">#${o.id} · ${fdt(o.created)}</div>
+    </div>
+    <div class="sub" style="margin-top:4px">📱 <b style="color:#e2e8f0">${esc(o.phoneName)}</b> · ${inr(o.price)} · ${esc(o.pay||'')} ${o.mobile?'· 📞 '+esc(o.mobile):''}</div>
+    ${o.note ? `<div class="sub" style="margin-top:4px">📝 ${esc(o.note)}</div>` : ''}
+    <div class="row" style="margin-top:8px">${(o.log||[]).map(l => `<span class="note"><span class="sw" style="background:${STCOL[l.s]}"></span>${l.s} ${fdt(l.t)}</span>`).join('<span class="note">→</span>')}</div>
+    <div class="row" style="margin-top:10px">
+      <select style="width:auto" onchange="setOStatus(${o.id},this.value)">${STATUSES.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
+      ${o.mobile ? `<a class="btn sm" style="text-decoration:none;color:inherit" target="_blank" href="${waCust(o)}">WhatsApp</a>` : ''}
+      <button class="btn sm" onclick="editOrder(${o.id})">Edit</button>
+      <button class="btn sm red" onclick="delOrder(${o.id})">Delete</button>
+    </div></div>`;
+  }).join('');
+}
+function renderOList(){ const e = $('#olist'); if(e) e.innerHTML = oListHTML(); }
+function waCust(o){
+  let n = String(o.mobile||'').replace(/\D/g,''); if(n.length===10) n = '91'+n;
+  const m = o.status==='Sold' ? `Thank you ${o.customer||''}! We appreciate your purchase of the ${o.phoneName}. Let us know if you need any help. — ${DB.STORE.name}`
+    : o.status==='Cancelled' ? `Hello ${o.customer||''}, your order for the ${o.phoneName} has been marked as cancelled. Let us know if you need anything else. — ${DB.STORE.name}`
+    : `Hello ${o.customer||''}, your ${o.phoneName} (${inr(o.price)}) is on hold for you. Please visit the store to check it. — ${DB.STORE.name}`;
+  return `https://wa.me/${n}?text=${encodeURIComponent(m)}`;
+}
+function applyStock(o, s){
+  const p = DB.PHONES.find(x=>x.id===o.phoneId); if(!p) return;
+  if(s==='Sold' && !o.adj){ p.left = Math.max(0,(p.left||0)-1); if(p.left===0) p.stock = false; o.adj = true; }
+  else if(s!=='Sold' && o.adj){ p.left = (p.left||0)+1; p.stock = true; o.adj = false; }
+}
+function setOStatus(id,s){
+  const o = DB.ORDERS.find(x=>x.id===id); if(!o || o.status===s) return;
+  o.status = s; (o.log = o.log||[]).push({s, t:Date.now()}); applyStock(o,s);
+  save('Status: '+s); render();
+}
+function delOrder(id){
+  const o = DB.ORDERS.find(x=>x.id===id);
+  if(confirm(`Delete order #${id}?` + (o.adj ? '\n(It was marked Sold — stock will be restored)' : ''))){ applyStock(o,'Cancelled'); DB.ORDERS = DB.ORDERS.filter(x=>x.id!==id); save('Order deleted'); render(); }
+}
+function editOrder(id){
+  const o = id ? DB.ORDERS.find(x=>x.id===id) : {customer:'',mobile:'',phoneId:'',price:0,pay:'Cash',status:'Booked',note:''};
+  const ph = [...DB.PHONES].sort((a,b)=>b.stock-a.stock);
+  $('#modalBox').innerHTML = `
+  <div class="row between" style="margin-bottom:10px"><h1>${id?'Edit Order #'+id:'New Order'}</h1><button class="btn sm" onclick="closeModal()">✕</button></div>
+  <div class="grid">
+    <div><label>Customer name</label><input id="o_customer" value="${esc(o.customer)}"></div>
+    <div><label>Mobile number</label><input id="o_mobile" type="tel" value="${esc(o.mobile)}"></div>
+    <div class="full"><label>Phone</label><select id="o_phone" onchange="oPick()"><option value="">— Select —</option>${ph.map(p=>`<option value="${p.id}" ${p.id===o.phoneId?'selected':''}>${esc(p.name)} (${p.ram}/${p.storage}) · ${inr(p.price)}${p.stock?'':' · SOLD OUT'}</option>`).join('')}</select></div>
+    <div><label>Final price ₹</label><input id="o_price" type="number" value="${o.price}"></div>
+    <div><label>Payment</label><select id="o_pay">${PAYS.map(s=>`<option ${s===o.pay?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div><label>Status</label><select id="o_status">${STATUSES.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="full"><label>Note</label><input id="o_note" value="${esc(o.note)}" placeholder="Visit time, discount, exchange…"></div>
+  </div>
+  <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveOrder(${id||0})">Save</button></div>`;
+  $('#modal').classList.remove('hide');
+}
+function oPick(){ const p = DB.PHONES.find(x=>x.id===Number($('#o_phone').value)); if(p) $('#o_price').value = p.price; }
+function saveOrder(id){
+  const p = DB.PHONES.find(x=>x.id===Number($('#o_phone').value));
+  if(!p) return toast('Please select a phone');
+  const v = k => $('#o_'+k).value.trim(), st = v('status');
+  if(id){
+    const o = DB.ORDERS.find(x=>x.id===id);
+    if(o.adj && o.phoneId!==p.id) applyStock(o,'Cancelled');           // phone changed: restore old stock
+    Object.assign(o, {customer:v('customer'), mobile:v('mobile'), phoneId:p.id, phoneName:p.name, price:Number(v('price'))||p.price, pay:v('pay'), note:v('note')});
+    if(o.status!==st){ o.status = st; (o.log=o.log||[]).push({s:st,t:Date.now()}); }
+    applyStock(o, st);
+  } else {
+    const o = {id:nextOid(), created:Date.now(), customer:v('customer'), mobile:v('mobile'), phoneId:p.id, phoneName:p.name, price:Number(v('price'))||p.price, pay:v('pay'), status:st, note:v('note'), log:[{s:st,t:Date.now()}], adj:false};
+    DB.ORDERS.push(o); applyStock(o, st);
+  }
+  closeModal(); save(id?'Order updated':'Order added'); render();
+}
+
+/* ===== STORE ===== */
+function vStore(){
+  const s = DB.STORE;
+  const f = (l,k,t='text',full=false) => `<div class="${full?'full':''}"><label>${l}</label><input id="s_${k}" type="${t}" value="${esc(s[k])}"></div>`;
+  return `<div class="card"><div class="grid">
+    <div class="full"><label>🖼️ Store logo (shows in website header)</label>
+      <div class="row">
+        <div style="width:64px;height:64px;border-radius:14px;background:#000;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden">${s.logo ? `<img src="${esc(s.logo)}" style="width:100%;height:100%;object-fit:contain">` : '<span class="note">No logo</span>'}</div>
+        <label class="btn sm" style="margin:0;cursor:pointer;color:inherit">${s.logo?'Change Logo':'+ Upload Logo'}<input type="file" accept="image/*" class="hide" onchange="uploadLogo(this.files[0]);this.value=''"></label>
+        ${s.logo ? '<button class="btn sm red" onclick="rmLogo()">Remove</button>' : ''}
+      </div></div>
+    ${f('Store name','name','text',true)}
+    <div class="full"><b>📍 Branch 1</b></div>
+    ${f('Branch 1 name','branchName','text',true)}
+    ${f('Mobile number 1 (+91…)','phone')}
+    ${f('WhatsApp number 1 (with country code, without +)','whatsapp')}
+    ${f('Short address (shown in header)','shortAddress','text',true)}
+    ${f('Full address','address','text',true)}
+    <div class="full"><b>📍 Branch 2</b> <span class="note">(leave empty to hide)</span></div>
+    ${f('Branch 2 name','branch2Name','text',true)}
+    ${f('Mobile number 2 (+91…)','phone2')}
+    ${f('WhatsApp number 2 (with country code, without +)','whatsapp2')}
+    ${f('Branch 2 full address','address2','text',true)}
+    ${f('Opening hour (0–23)','openHour','number')}
+    ${f('Closing hour (0–23)','closeHour','number')}
+    ${f('Opening hours text','hoursText','text',true)}
+    ${f('Customers (e.g. 5,000+)','customers')}
+    ${f('Rating','rating')}
+    ${f('Established (year)','since')}
+    <div class="full"><label>Offer banner (leave empty to hide)</label><textarea id="s_offer" rows="2">${esc(s.offer)}</textarea></div>
+  </div>
+  <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn pri" onclick="saveStore()">Save Store Details</button></div></div>`;
+}
+async function uploadLogo(f){
+  if(!f) return;
+  if(!f.type.startsWith('image/')) return toast('Please choose an image file');
+  startUp('Preparing logo…');
+  try{ const b = await compress(f, 500); const old = DB.STORE.logo; DB.STORE.logo = await workerUpload(b, 'Logo upload'); save('Logo updated ✓'); render(); releaseUrls([old]); }
+  catch(e){ toast('Logo upload failed: ' + (e.message||'')); }
+  endUp();
+}
+function rmLogo(){ const old = DB.STORE.logo; DB.STORE.logo = ''; save('Logo removed'); render(); releaseUrls([old]); }
+function saveStore(){
+  const s = DB.STORE;
+  ['name','branchName','whatsapp','phone','shortAddress','address','branch2Name','phone2','whatsapp2','address2','hoursText','customers','rating','since','offer'].forEach(k => s[k] = $('#s_'+k).value.trim());
+  s.whatsapp = s.whatsapp.replace(/\D/g,''); s.whatsapp2 = s.whatsapp2.replace(/\D/g,'');
+  s.openHour = Number($('#s_openHour').value)||10; s.closeHour = Number($('#s_closeHour').value)||21;
+  save('Store details saved');
+}
+
+/* ===== SETTINGS ===== */
+function vSettings(){
+  const u = auth.currentUser;
+  return `<div class="card"><b>Account</b><p class="note">Login: ${esc(u ? u.email : '')}<br>Store ID: ${esc(STORE_ID)}</p></div>
+  <div class="card"><b>Change password</b>
+    <div class="grid" style="margin-top:8px">
+      <div><label>New password</label><input id="np" type="password" autocomplete="new-password"></div>
+      <div><label>Confirm password</label><input id="np2" type="password" autocomplete="new-password"></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="btn pri" onclick="chPw()">Update</button></div>
+    <p class="note" style="margin-top:10px">You sign in with your email and password. Keep your password private.</p></div>`;
+}
+function chPw(){
+  const a = $('#np').value, b = $('#np2').value;
+  if(a.length < 6) return toast('Use at least 6 characters');
+  if(a !== b) return toast('Passwords do not match');
+  auth.currentUser.updatePassword(a).then(() => toast('Password updated'))
+    .catch(e => toast(e.code === 'auth/requires-recent-login' ? 'Please sign out, sign in again, then retry' : 'Failed: ' + e.message));
+}
+</script>
+</body>
+</html>

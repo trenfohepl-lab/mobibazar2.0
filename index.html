@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050816">
+<title>Certified Pre-Owned Smartphones</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"','system-ui','sans-serif'] } } } }
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+  body { background:#050816; font-family:'Plus Jakarta Sans',system-ui,sans-serif; }
+  .bg-aurora {
+    background:
+      radial-gradient(55% 35% at 12% 0%, rgba(6,182,212,.18), transparent 60%),
+      radial-gradient(45% 30% at 92% 8%, rgba(16,185,129,.15), transparent 60%),
+      radial-gradient(40% 30% at 50% 100%, rgba(99,102,241,.10), transparent 60%),
+      #050816;
+  }
+  .glass { background:rgba(12,18,38,.62); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+  .no-scrollbar::-webkit-scrollbar{display:none} .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+  .grad-text { background:linear-gradient(90deg,#22d3ee,#34d399); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .pill-active { background:linear-gradient(135deg,#06b6d4,#10b981); color:#021016; border-color:transparent; box-shadow:0 0 22px rgba(6,182,212,.5); }
+  .card { transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s; }
+  .card:hover { transform:translateY(-6px); border-color:rgba(6,182,212,.5); box-shadow:0 22px 60px -14px rgba(6,182,212,.32); }
+  .card .ph { transition:transform .6s cubic-bezier(.2,.8,.2,1); }
+  .card:hover .ph { transform:scale(1.07) translateY(-4px); }
+  .ph svg, .hero-ph svg { filter:drop-shadow(0 20px 22px rgba(0,0,0,.55)); }
+  .btn-wa { background:linear-gradient(135deg,#22c55e,#10b981 50%,#059669); box-shadow:0 8px 26px -6px rgba(16,185,129,.6); transition:all .25s; }
+  .btn-wa:hover { box-shadow:0 12px 32px -4px rgba(16,185,129,.8); transform:translateY(-1px); }
+  .btn-wa:active { transform:scale(.97); }
+  .pulse-dot::after { content:''; position:absolute; inset:0; border-radius:9999px; background:#10b981; animation:ping 1.6s cubic-bezier(0,0,.2,1) infinite; }
+  @keyframes ping { 75%,100% { transform:scale(2.6); opacity:0; } }
+  .fade-up { animation:fadeUp .6s both cubic-bezier(.2,.8,.2,1); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .floaty { animation:float 5s ease-in-out infinite; }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  .marquee { display:flex; width:max-content; animation:marquee 38s linear infinite; }
+  .marquee:hover { animation-play-state:paused; }
+  .shine { position:relative; overflow:hidden; }
+  .shine::after { content:''; position:absolute; top:0; left:-120%; width:60%; height:100%; background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent); transform:skewX(-20deg); animation:shine 3.2s infinite; }
+  @keyframes shine { 0%{left:-120%} 60%,100%{left:160%} }
+  #overlay { transition:opacity .3s; }
+  #sheet { transition:transform .4s cubic-bezier(.2,.8,.2,1), opacity .3s; }
+  @media (max-width:767px){ #sheet.closed{ transform:translateY(100%);} }
+  @media (min-width:768px){ #sheet.closed{ transform:scale(.94) translateY(12px); opacity:0;} }
+  details>summary { list-style:none; cursor:pointer; } details>summary::-webkit-details-marker{display:none}
+  details[open] .chev { transform:rotate(180deg); } .chev{ transition:transform .3s; }
+  .toast { transition:all .35s; }
+  select { background-image:none; }
+  .vbadge { animation:vglow 1.8s ease-in-out infinite; }
+  @keyframes vglow { 0%,100%{ box-shadow:0 0 6px rgba(6,182,212,.4);} 50%{ box-shadow:0 0 20px rgba(16,185,129,.95);} }
+</style>
+</head>
+<body class="bg-aurora text-slate-200 antialiased min-h-screen selection:bg-cyan-500/30">
+
+<!-- ANNOUNCEMENT BAR -->
+<div id="offerBar" class="hidden bg-gradient-to-r from-cyan-500 via-emerald-500 to-cyan-500 text-slate-950 text-center text-[12px] sm:text-sm font-bold py-2 px-3">
+  <span id="offerText"></span>
+</div>
+
+<!-- HEADER -->
+<header class="sticky top-0 z-40 glass border-b border-slate-800/80">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div id="logoBox" class="w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-br from-cyan-400 to-emerald-500 grid place-items-center shadow-[0_0_26px_rgba(6,182,212,.55)]">
+        <i class="fa-solid fa-mobile-screen-button text-slate-950 text-lg"></i>
+      </div>
+      <div class="min-w-0">
+        <div class="flex items-center gap-1.5">
+          <h1 id="headerShopTitle" class="font-extrabold text-white text-[15px] sm:text-lg leading-tight truncate"></h1>
+          <span class="shrink-0 inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-1.5 py-0.5"><i class="fa-solid fa-circle-check"></i>VERIFIED</span>
+        </div>
+        <div class="flex items-center gap-2 text-[11px] sm:text-xs text-slate-400">
+          <span class="relative inline-flex w-2 h-2 shrink-0"><span id="openDot" class="pulse-dot relative inline-block w-2 h-2 rounded-full bg-emerald-500"></span></span>
+          <span id="openText" class="font-semibold text-emerald-400">Open Now</span>
+          <span class="text-slate-600">•</span>
+          <span class="truncate"><i class="fa-solid fa-location-dot mr-1 text-slate-500"></i><span id="shortAddr"></span></span>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <a id="callBtn" href="#" class="w-10 h-10 sm:w-auto sm:px-4 rounded-xl border border-slate-700 bg-slate-900/70 hover:border-cyan-400 hover:text-cyan-300 grid place-items-center sm:flex sm:gap-2 text-sm font-semibold transition" aria-label="Call store"><i class="fa-solid fa-phone"></i><span class="hidden sm:inline">Call</span></a>
+      <a id="waHeaderBtn" href="#" target="_blank" rel="noopener" class="btn-wa w-10 h-10 sm:w-auto sm:px-4 rounded-xl text-white grid place-items-center sm:flex sm:gap-2 text-sm font-semibold" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp text-lg"></i><span class="hidden sm:inline">WhatsApp</span></a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 pb-28 md:pb-16">
+
+  <!-- HERO -->
+  <section class="pt-8 sm:pt-12 grid lg:grid-cols-2 gap-6 items-center">
+    <div class="fade-up">
+      <span class="inline-flex items-center gap-2 text-[11px] font-bold tracking-wider uppercase text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-3 py-1.5">
+        <i class="fa-solid fa-bolt"></i> Certified Pre-Owned Phones
+      </span>
+      <h2 class="mt-4 text-[34px] sm:text-6xl font-extrabold text-white leading-[1.05] tracking-tight">
+        Affordable.<br><span class="grad-text">Authentic.</span>
+      </h2>
+      <p class="mt-4 text-slate-400 max-w-lg text-[15px] leading-relaxed">Every phone passes a 32-point inspection. Enjoy a 7-day warranty, an original bill, and test it in store before you buy. Love it? Book on WhatsApp and we will hold it in your name.</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href="#shop" class="btn-wa shine inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl text-white font-extrabold text-[15px]"><i class="fa-solid fa-bag-shopping"></i> Browse Phones</a>
+        <a id="heroCall" href="#" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl border border-slate-700 bg-slate-900/60 hover:border-cyan-400 font-bold text-[15px] transition"><i class="fa-solid fa-phone text-cyan-400"></i> Call Us</a>
+      </div>
+      <div class="mt-8 grid grid-cols-3 gap-3 max-w-md">
+        <div class="glass border border-slate-800/80 rounded-2xl p-3 text-center"><p class="text-xl font-extrabold text-white" id="stCust"></p><p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">Happy Customers</p></div>
+        <div class="glass border border-slate-800/80 rounded-2xl p-3 text-center"><p class="text-xl font-extrabold text-white"><i class="fa-solid fa-star text-amber-400 text-base"></i> <span id="stRating"></span></p><p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">Google Rating</p></div>
+        <div class="glass border border-slate-800/80 rounded-2xl p-3 text-center"><p class="text-xl font-extrabold text-white" id="stSince"></p><p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">Trusted Since</p></div>
+      </div>
+    </div>
+    <div class="relative grid place-items-center min-h-[300px] sm:min-h-[420px] fade-up" style="animation-delay:.12s">
+      <div class="absolute w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-gradient-to-br from-cyan-500/30 to-emerald-500/20 blur-3xl"></div>
+      <div class="absolute w-64 h-64 sm:w-80 sm:h-80 rounded-full border border-cyan-500/20"></div>
+      <div class="absolute w-80 h-80 sm:w-[26rem] sm:h-[26rem] rounded-full border border-slate-800/80"></div>
+      <div id="heroPhone" class="hero-ph floaty relative w-[300px] sm:w-[400px]"></div>
+      <div class="absolute left-0 sm:left-6 top-10 glass border border-slate-700/80 rounded-2xl px-3 py-2 text-xs font-bold shadow-xl"><i class="fa-solid fa-battery-full text-emerald-400 mr-1.5"></i>Battery 89%</div>
+      <div class="absolute right-0 sm:right-6 bottom-14 glass border border-slate-700/80 rounded-2xl px-3 py-2 text-xs font-bold shadow-xl"><i class="fa-solid fa-shield-halved text-cyan-400 mr-1.5"></i>7-Day Warranty</div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <section class="mt-8 overflow-hidden rounded-2xl border border-slate-800/80 glass py-2.5">
+    <div id="ticker" class="marquee text-[13px] font-semibold text-slate-300"></div>
+  </section>
+
+  <!-- TRUST STRIP -->
+  <section class="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="glass border border-slate-800/80 rounded-2xl p-3.5 flex items-start gap-3"><div class="w-10 h-10 shrink-0 rounded-xl bg-cyan-500/10 text-cyan-400 grid place-items-center"><i class="fa-solid fa-microscope"></i></div><div><p class="text-[13px] font-bold text-white leading-tight">32-Point Quality Inspection</p><p class="text-[11px] text-slate-500 mt-0.5">Every part tested</p></div></div>
+    <div class="glass border border-slate-800/80 rounded-2xl p-3.5 flex items-start gap-3"><div class="w-10 h-10 shrink-0 rounded-xl bg-emerald-500/10 text-emerald-400 grid place-items-center"><i class="fa-solid fa-shield-halved"></i></div><div><p class="text-[13px] font-bold text-white leading-tight">7-Day Testing Warranty</p><p class="text-[11px] text-slate-500 mt-0.5">Buy with confidence</p></div></div>
+    <div class="glass border border-slate-800/80 rounded-2xl p-3.5 flex items-start gap-3"><div class="w-10 h-10 shrink-0 rounded-xl bg-cyan-500/10 text-cyan-400 grid place-items-center"><i class="fa-solid fa-gears"></i></div><div><p class="text-[13px] font-bold text-white leading-tight">100% Genuine Parts Guaranteed</p><p class="text-[11px] text-slate-500 mt-0.5">No duplicate parts</p></div></div>
+    <div class="glass border border-slate-800/80 rounded-2xl p-3.5 flex items-start gap-3"><div class="w-10 h-10 shrink-0 rounded-xl bg-emerald-500/10 text-emerald-400 grid place-items-center"><i class="fa-solid fa-file-invoice"></i></div><div><p class="text-[13px] font-bold text-white leading-tight">Original Bill & ID Verification</p><p class="text-[11px] text-slate-500 mt-0.5">100% legal source</p></div></div>
+  </section>
+
+  <!-- FILTERS -->
+  <section id="shop" class="mt-10 scroll-mt-20 md:sticky md:top-[64px] z-30 -mx-4 px-4 py-3 glass border-y border-slate-800/60">
+    <div class="flex gap-2">
+      <div class="relative flex-1">
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+        <input id="search" type="search" autocomplete="off" placeholder="Search model or storage — iPhone 13, 256GB"
+          class="w-full bg-slate-900/80 border border-slate-800 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 outline-none rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-slate-500 transition">
+      </div>
+      <div class="relative">
+        <select id="sort" class="appearance-none h-full bg-slate-900/80 border border-slate-800 focus:border-cyan-500 outline-none rounded-2xl pl-3 pr-8 text-xs font-bold text-slate-200 cursor-pointer">
+          <option value="featured">Featured</option>
+          <option value="low">Price: Low → High</option>
+          <option value="high">Price: High → Low</option>
+          <option value="battery">Best Battery</option>
+          <option value="save">Biggest Saving</option>
+        </select>
+        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none"></i>
+      </div>
+    </div>
+    <div id="brandPills" class="mt-3 flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1"></div>
+    <div id="quickChips" class="mt-3 flex flex-wrap gap-2"></div>
+  </section>
+
+  <!-- GRID -->
+  <section class="mt-6">
+    <div class="flex items-end justify-between mb-4">
+      <h3 class="text-xl font-extrabold text-white">Available Phones</h3>
+      <p id="resultCount" class="text-xs text-slate-500 font-semibold"></p>
+    </div>
+    <div id="grid" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
+    <div id="empty" class="hidden text-center py-16 glass border border-slate-800/80 rounded-3xl">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-900 grid place-items-center text-slate-500 text-2xl"><i class="fa-solid fa-mobile-retro"></i></div>
+      <p class="mt-4 font-bold text-white">No phones match your filters</p>
+      <p class="text-sm text-slate-500 mt-1 px-6">Tell us what you are looking for and we will arrange it.</p>
+      <a id="requestBtn" href="#" target="_blank" rel="noopener" class="btn-wa inline-flex items-center gap-2 mt-5 px-5 py-3 rounded-xl text-white text-sm font-bold"><i class="fa-brands fa-whatsapp"></i> Request This Phone</a>
+      <button id="resetBtn" class="block mx-auto mt-3 text-xs text-cyan-400 hover:underline font-semibold">Reset filters</button>
+    </div>
+  </section>
+
+  <!-- SELL / EXCHANGE -->
+  <section class="mt-14 relative overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/15 via-slate-900 to-emerald-500/15 p-6 sm:p-10">
+    <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full bg-emerald-500/20 blur-3xl"></div>
+    <div class="relative grid sm:grid-cols-[1fr_auto] gap-6 items-center">
+      <div>
+        <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-300"><i class="fa-solid fa-rotate mr-1"></i>Sell / Exchange</span>
+        <h3 class="mt-2 text-2xl sm:text-3xl font-extrabold text-white leading-tight">Sell or exchange your old phone</h3>
+        <p class="mt-2 text-slate-400 text-sm max-w-lg">Send your phone's model and condition on WhatsApp and get our best price within 10 minutes. Same-day payment, no hassle.</p>
+      </div>
+      <a id="sellBtn" href="#" target="_blank" rel="noopener" class="btn-wa shine inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-white font-extrabold"><i class="fa-brands fa-whatsapp text-lg"></i> Get My Price</a>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="mt-14">
+    <h3 class="text-xl font-extrabold text-white text-center">Buying made <span class="grad-text">simple</span></h3>
+    <div class="mt-6 grid sm:grid-cols-3 gap-4">
+      <div class="glass border border-slate-800/80 rounded-3xl p-5 text-center"><div class="w-12 h-12 mx-auto rounded-2xl bg-cyan-500/10 text-cyan-400 grid place-items-center text-lg"><i class="fa-solid fa-hand-pointer"></i></div><p class="mt-3 font-bold text-white">1. Choose a phone</p><p class="text-xs text-slate-500 mt-1">Browse models and read the diagnostic report.</p></div>
+      <div class="glass border border-slate-800/80 rounded-3xl p-5 text-center"><div class="w-12 h-12 mx-auto rounded-2xl bg-emerald-500/10 text-emerald-400 grid place-items-center text-lg"><i class="fa-brands fa-whatsapp"></i></div><p class="mt-3 font-bold text-white">2. Book on WhatsApp</p><p class="text-xs text-slate-500 mt-1">Your message is ready in one tap. We hold the phone for you.</p></div>
+      <div class="glass border border-slate-800/80 rounded-3xl p-5 text-center"><div class="w-12 h-12 mx-auto rounded-2xl bg-cyan-500/10 text-cyan-400 grid place-items-center text-lg"><i class="fa-solid fa-store"></i></div><p class="mt-3 font-bold text-white">3. Visit, test and buy</p><p class="text-xs text-slate-500 mt-1">Pay only after testing it in store. Bill and warranty included.</p></div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="mt-14">
+    <h3 class="text-xl font-extrabold text-white">What our customers say</h3>
+    <div class="mt-5 flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 snap-x pb-2">
+      <div class="snap-start shrink-0 w-[290px] glass border border-slate-800/80 rounded-3xl p-5"><div class="text-amber-400 text-sm"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div><p class="mt-3 text-sm text-slate-300 leading-relaxed">Bought an iPhone 13 and it looks brand new. The battery health was exactly as promised, and I got a bill too.</p><div class="mt-4 flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 grid place-items-center text-slate-950 font-extrabold text-sm">R</div><div><p class="text-sm font-bold text-white">Rahul S.</p><p class="text-[11px] text-slate-500">Verified Buyer</p></div></div></div>
+      <div class="snap-start shrink-0 w-[290px] glass border border-slate-800/80 rounded-3xl p-5"><div class="text-amber-400 text-sm"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div><p class="mt-3 text-sm text-slate-300 leading-relaxed">Everything was explained clearly on WhatsApp, and I tested the phone in store. The price was the lowest I found.</p><div class="mt-4 flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 grid place-items-center text-slate-950 font-extrabold text-sm">P</div><div><p class="text-sm font-bold text-white">Priya M.</p><p class="text-[11px] text-slate-500">Verified Buyer</p></div></div></div>
+      <div class="snap-start shrink-0 w-[290px] glass border border-slate-800/80 rounded-3xl p-5"><div class="text-amber-400 text-sm"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div><p class="mt-3 text-sm text-slate-300 leading-relaxed">Bought a OnePlus 11R and had no problems in the first week. The warranty gave me the confidence to buy.</p><div class="mt-4 flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 grid place-items-center text-slate-950 font-extrabold text-sm">A</div><div><p class="text-sm font-bold text-white">Aman K.</p><p class="text-[11px] text-slate-500">Verified Buyer</p></div></div></div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="mt-14 max-w-3xl">
+    <h3 class="text-xl font-extrabold text-white">Frequently asked questions</h3>
+    <div class="mt-5 space-y-3">
+      <details class="glass border border-slate-800/80 rounded-2xl p-4"><summary class="flex items-center justify-between font-bold text-white text-sm">Will I get a bill with the phone?<i class="fa-solid fa-chevron-down chev text-slate-500 text-xs"></i></summary><p class="mt-3 text-sm text-slate-400">Yes, every phone comes with a proper store bill. We also verify the seller's ID and the original bill.</p></details>
+      <details class="glass border border-slate-800/80 rounded-2xl p-4"><summary class="flex items-center justify-between font-bold text-white text-sm">What does the 7-day warranty cover?<i class="fa-solid fa-chevron-down chev text-slate-500 text-xs"></i></summary><p class="mt-3 text-sm text-slate-400">If any hardware or software problem appears within 7 days, the phone is replaced or repaired. Physical damage is not covered.</p></details>
+      <details class="glass border border-slate-800/80 rounded-2xl p-4"><summary class="flex items-center justify-between font-bold text-white text-sm">Can I check the phone before buying?<i class="fa-solid fa-chevron-down chev text-slate-500 text-xs"></i></summary><p class="mt-3 text-sm text-slate-400">Absolutely. Visit the store, test every function yourself, and pay only when you are satisfied.</p></details>
+      <details class="glass border border-slate-800/80 rounded-2xl p-4"><summary class="flex items-center justify-between font-bold text-white text-sm">How can I pay?<i class="fa-solid fa-chevron-down chev text-slate-500 text-xs"></i></summary><p class="mt-3 text-sm text-slate-400">Cash, UPI and card are all accepted. EMI is available on select phones.</p></details>
+    </div>
+  </section>
+
+  <!-- VISIT STORE -->
+  <section class="mt-14">
+    <p class="text-[11px] font-bold uppercase tracking-wider text-cyan-400"><i class="fa-solid fa-location-dot mr-1"></i>Our Stores</p>
+    <h3 class="mt-1 text-xl font-extrabold text-white" id="storeName"></h3>
+    <div id="branches" class="mt-4 grid sm:grid-cols-2 gap-4"></div>
+  </section>
+
+  <footer class="mt-12 text-center text-xs text-slate-600 leading-relaxed">
+    <p><span class="text-slate-400 font-bold" id="footName"></span> • Made with ❤️ for smart buyers</p>
+    <p class="mt-1">Prices may change • Stock is limited</p>
+  </footer>
+</main>
+
+<!-- MOBILE STICKY BAR -->
+<div class="md:hidden fixed bottom-0 inset-x-0 z-40 glass border-t border-slate-800/80 px-4 pt-3 pb-[max(.75rem,env(safe-area-inset-bottom))] grid grid-cols-5 gap-2">
+  <a id="barCall" href="#" class="col-span-2 py-3 rounded-2xl border border-slate-700 bg-slate-900/70 text-center text-sm font-bold"><i class="fa-solid fa-phone text-cyan-400 mr-1.5"></i>Call</a>
+  <a id="barWa" href="#" target="_blank" rel="noopener" class="btn-wa col-span-3 py-3 rounded-2xl text-white text-center text-sm font-extrabold"><i class="fa-brands fa-whatsapp mr-1.5 text-base"></i>WhatsApp Us</a>
+</div>
+
+<!-- MODAL -->
+<div id="modalRoot" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div id="overlay" class="absolute inset-0 bg-black/75 backdrop-blur-sm opacity-0"></div>
+  <div class="absolute inset-0 flex items-end md:items-center justify-center pointer-events-none">
+    <div id="sheet" class="closed relative pointer-events-auto w-full md:max-w-3xl max-h-[92vh] md:max-h-[88vh] overflow-hidden flex flex-col bg-[#070b1c] border border-slate-800 rounded-t-3xl md:rounded-3xl shadow-[0_-20px_80px_-20px_rgba(6,182,212,.4)]">
+      <div class="md:hidden pt-2.5 pb-1 grid place-items-center"><span class="w-11 h-1.5 rounded-full bg-slate-700"></span></div>
+      <button id="closeModal" class="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-slate-900/90 border border-slate-800 hover:border-cyan-500 grid place-items-center text-slate-300" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <div id="modalBody" class="overflow-y-auto flex-1"></div>
+      <div id="modalFooter" class="p-4 border-t border-slate-800 bg-[#070b1c]/95 pb-[max(1rem,env(safe-area-inset-bottom))]"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL-SCREEN PHOTO VIEWER -->
+<div id="lb" class="fixed inset-0 z-[70] hidden bg-black/95" role="dialog" aria-label="Photo viewer">
+  <div id="lbStage" class="absolute inset-0 overflow-hidden grid place-items-center" style="touch-action:none"><img id="lbImg" alt="" draggable="false" class="max-w-full max-h-full select-none" style="will-change:transform"></div>
+  <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 w-11 h-11 rounded-full bg-slate-900/90 border border-slate-700 text-white grid place-items-center" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+  <button id="lbPrev" type="button" onclick="lbGo(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/80 border border-slate-700 text-white grid place-items-center" aria-label="Previous photo"><i class="fa-solid fa-chevron-left"></i></button>
+  <button id="lbNext" type="button" onclick="lbGo(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/80 border border-slate-700 text-white grid place-items-center" aria-label="Next photo"><i class="fa-solid fa-chevron-right"></i></button>
+  <div class="absolute bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 flex items-center gap-2 glass border border-slate-700 rounded-full px-3 py-2">
+    <button type="button" onclick="lbZoom(1/1.4)" class="w-10 h-10 rounded-full text-white grid place-items-center" aria-label="Zoom out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+    <button type="button" onclick="lbReset()" class="px-3 h-10 rounded-full text-xs font-bold text-slate-300">Reset</button>
+    <button type="button" onclick="lbZoom(1.4)" class="w-10 h-10 rounded-full text-white grid place-items-center" aria-label="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+  </div>
+</div>
+<!-- CALL / WHATSAPP BRANCH PICKER -->
+<div id="cmenu" class="fixed inset-0 z-[65] hidden">
+  <div class="absolute inset-0 bg-black/70" onclick="closeContact()"></div>
+  <div class="absolute bottom-0 inset-x-0 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[380px] bg-[#070b1c] border border-slate-800 rounded-t-3xl md:rounded-3xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+    <div class="flex items-center justify-between mb-3"><h4 id="cmTitle" class="font-extrabold text-white"></h4><button type="button" onclick="closeContact()" class="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 text-slate-300" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="cmList" class="space-y-2"></div>
+  </div>
+</div>
+<div id="toast" class="toast fixed left-1/2 -translate-x-1/2 bottom-24 z-[60] opacity-0 translate-y-4 pointer-events-none glass border border-slate-700 rounded-full px-5 py-3 text-sm font-medium text-white shadow-xl"></div>
+
+<script>
+/* ===== CLOUD CONFIG ===== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAUJGlDUuFc0_PiQi4OwLKGq2VevLo3rI0",
+  authDomain: "mobile-shop-bb3ee.firebaseapp.com",
+  databaseURL: "https://mobile-shop-bb3ee-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "mobile-shop-bb3ee",
+  storageBucket: "mobile-shop-bb3ee.firebasestorage.app",
+  messagingSenderId: "234370721702",
+  appId: "1:234370721702:web:your_web_app_id"
+};
+const DEFAULT_STORE_ID = "mobibazar"; // used only if the link has no store mapping
+let STORE_ID = DEFAULT_STORE_ID;
+firebase.initializeApp(FIREBASE_CONFIG);
+
+/* Fallback values — replaced as soon as the store loads from the database */
+const STORE = { name:'', whatsapp:'', phone:'', shortAddress:'', address:'', openHour:10, closeHour:21, hoursText:'', customers:'', rating:'', since:'', offer:'',
+  branchName:'', branch2Name:'', address2:'', phone2:'', whatsapp2:'', logo:'' };
+
+/* Logo: uses the logo uploaded in Admin → Store; else logo.png next to this file; else the default icon */
+function applyLogo() {
+  const box = $('#logoBox'), src = STORE.logo || 'logo.png';
+  if (!box || box.dataset.src === src) return; box.dataset.src = src;
+  const im = new Image();
+  im.onload = () => {
+    box.className = 'w-12 h-12 shrink-0 rounded-2xl bg-black border border-slate-700 overflow-hidden grid place-items-center shadow-[0_0_26px_rgba(6,182,212,.35)]';
+    im.className = 'w-full h-full object-contain'; im.alt = (STORE.name || 'Store') + ' logo';
+    box.innerHTML = ''; box.appendChild(im);
+    let fv = document.getElementById('favicon');
+    if (!fv) { fv = document.createElement('link'); fv.id = 'favicon'; fv.rel = 'icon'; document.head.appendChild(fv); }
+    fv.href = src;
+  };
+  im.src = src;
+}
+
+function fmtHour(h){ h = Number(h)||0; return ((h % 12) || 12) + ':00 ' + (h < 12 ? 'AM' : 'PM'); }
+function applyShopName(){
+  document.getElementById('headerShopTitle').textContent = STORE.name;
+  $('#storeName').textContent = STORE.name; $('#footName').textContent = STORE.name;
+  document.title = STORE.name ? STORE.name + ' — Certified Pre-Owned Smartphones' : 'Certified Pre-Owned Smartphones';
+}
+
+const PHONES = [];   // filled live from the database
+
+const BRANDS = ['All'];
+const CAT_IMG = {}, HIDDEN_CATS = new Set();
+const BRAND_ICON = { Apple:'fa-brands fa-apple', Samsung:'fa-solid fa-mobile-screen', All:'fa-solid fa-layer-group' };
+const CHIPS = [
+  { key:'offer', label:'Offer Mode', icon:'fa-fire' },
+  { key:'openbox', label:'Open Box', icon:'fa-box-open' },
+  { key:'sealcut', label:'Seal Cut', icon:'fa-scissors' },
+  { key:'under5', label:'Below ₹5k', icon:'fa-indian-rupee-sign' },
+  { key:'under10', label:'Below ₹10k', icon:'fa-indian-rupee-sign' },
+  { key:'under15', label:'Below ₹15k', icon:'fa-indian-rupee-sign' },
+  { key:'g4', label:'4G Phones', icon:'fa-signal' },
+  { key:'g5', label:'5G Phones', icon:'fa-tower-cell' },
+  { key:'flagship', label:'Flagship Deals', icon:'fa-crown' },
+  { key:'battery85', label:'Battery 85%+', icon:'fa-battery-full' }
+];
+/* chips in the same group cannot be active together */
+const CHIP_GROUPS = [['under5','under10','under15'], ['g4','g5'], ['br0','br1'], ['openbox','sealcut']];
+const branchOf = p => Math.min(Number(p.branch) || 0, branches().length - 1);
+const branchLabel = p => (branches()[branchOf(p)] || {}).label || '';
+const branchWa = p => (branches()[branchOf(p)] || {}).wa || STORE.whatsapp;
+const branchTag = (p, cls) => branches().length > 1 ? `<p class="${cls}"><i class="fa-solid fa-store mr-1.5"></i>${escH(branchLabel(p))}</p>` : '';
+const netOf = p => p.network || (/5g/i.test(p.name || '') ? '5G' : '');
+const isOffer = p => !!p.offer || /deal|offer/i.test(p.tag || '');
+
+/* =====================================================
+   HELPERS
+   ===================================================== */
+const state = { q:'', brand:'All', chips:new Set(), sort:'featured' };
+let openId = null, openSig = '', phonesLoaded = false, rawCats = null;
+const $ = s => document.querySelector(s);
+const inr = n => '₹' + n.toLocaleString('en-IN');
+const saving = p => p.mrp - p.price;
+const specStr = p => `${p.ram}GB/${p.storage}GB`;
+const waLink = (msg, num) => `https://wa.me/${num || STORE.whatsapp}?text=${encodeURIComponent(msg)}`;
+
+function bookingMessage(p) {
+  return [
+    `Hello ${STORE.name}! 👋`, ``,
+    `I would like to *book* this phone:`,
+    `📱 *${p.name}* (${p.color})`,
+    `💾 ${specStr(p)}`,
+    `⭐ Condition: ${p.condition} ${p.score}${p.condNote ? ' (' + p.condNote + ')' : ''}`,
+    `🔋 Battery Health: ${p.battery}%`,
+    `📦 ${p.box}`,
+    ...(branches().length > 1 ? [`🏬 Branch: ${branchLabel(p)}`] : []),
+    `💰 Price: *${inr(p.price)}* (MRP ${inr(p.mrp)})`, ``,
+    `Is it still available? I would like to visit the store, check it, and then buy it. Please hold it for me. 🙏`
+  ].join('\n');
+}
+const notifyMessage = p => `Hello ${STORE.name}! 👋\n\n*${p.name}* (${specStr(p)}) is showing as sold out. Please let me know when a similar phone arrives in this budget (around ${inr(p.price)}). 🙏`;
+
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.remove('opacity-0','translate-y-4'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.add('opacity-0','translate-y-4'),2200); }
+
+/* =====================================================
+   PHONE ILLUSTRATION (built-in preview image)
+   ===================================================== */
+function phoneSVG(p) {
+  const id = 'p' + p.id + Math.random().toString(36).slice(2,6);
+  const [c1,c2] = p.body, [w1,w2] = p.wp;
+  const lens = (cx,cy,r) => `<circle cx="${cx}" cy="${cy}" r="${r+2.6}" fill="#171a21" stroke="#aab2c0" stroke-opacity=".6" stroke-width="1.2"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${id}l)"/><circle cx="${cx-r*.32}" cy="${cy-r*.32}" r="${r*.26}" fill="#fff" fill-opacity=".55"/>`;
+  const flash = (x,y) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#ffe8a3"/>`;
+  let cam = '';
+  switch (p.cam) {
+    case 'iphone':
+      cam = `<rect x="9" y="9" width="48" height="48" rx="13" fill="#0c0f15" fill-opacity=".88" stroke="#fff" stroke-opacity=".18"/>${lens(24,24,8.5)}${lens(41,41,8.5)}${flash(42,21)}`; break;
+    case 'samsung':
+      cam = lens(22,24,7)+lens(22,50,7)+lens(22,76,7)+flash(42,24)+flash(42,36); break;
+    case 'oneplus':
+      cam = `<circle cx="34" cy="34" r="29" fill="#0c0f15" stroke="#d3d8e2" stroke-width="2.6"/><circle cx="34" cy="34" r="25" fill="none" stroke="#fff" stroke-opacity=".12"/>${lens(24,25,7)}${lens(44,25,7)}${lens(34,45,7)}${flash(52,50)}`; break;
+    case 'vivo':
+      cam = `<rect x="8" y="8" width="52" height="60" rx="16" fill="#0c0f15" fill-opacity=".88" stroke="#fff" stroke-opacity=".2"/>${lens(24,25,8)}${lens(24,50,8)}<circle cx="46" cy="30" r="6" fill="#fff" fill-opacity=".85"/>`; break;
+    case 'realme':
+      cam = `<circle cx="36" cy="36" r="30" fill="#0c0f15" stroke="#ffffff" stroke-opacity=".5" stroke-width="2"/><circle cx="36" cy="36" r="22" fill="none" stroke="#fff" stroke-opacity=".15"/>${lens(36,36,13)}${lens(22,54,5)}${lens(50,54,5)}`; break;
+    case 'redmi':
+      cam = `<rect x="8" y="8" width="38" height="68" rx="14" fill="#0c0f15" fill-opacity=".88" stroke="#fff" stroke-opacity=".2"/>${lens(27,26,8.5)}${lens(27,52,8.5)}${flash(52,18)}`; break;
+  }
+  const island = p.cam === 'iphone'
+    ? `<rect x="36" y="9" width="32" height="9" rx="4.5" fill="#000"/>`
+    : `<circle cx="52" cy="12" r="3.3" fill="#000"/>`;
+  return `
+<svg viewBox="0 0 320 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${escH(p.name)} ${escH(p.color)}">
+  <defs>
+    <linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+    <linearGradient id="${id}w" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${w1}"/><stop offset="1" stop-color="${w2}"/></linearGradient>
+    <radialGradient id="${id}l" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#4a5f8f"/><stop offset=".55" stop-color="#101626"/><stop offset="1" stop-color="#03050a"/></radialGradient>
+    <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <!-- BACK -->
+  <g transform="translate(56 24) rotate(-8 52 106)">
+    <rect x="-1.5" y="40" width="3" height="22" rx="1.5" fill="${c2}"/>
+    <rect x="102.5" y="58" width="3" height="34" rx="1.5" fill="${c2}"/>
+    <rect width="104" height="212" rx="20" fill="url(#${id}b)" stroke="#fff" stroke-opacity=".22"/>
+    <rect width="104" height="212" rx="20" fill="url(#${id}g)"/>
+    ${cam}
+    <text x="52" y="196" text-anchor="middle" font-size="7" font-weight="700" letter-spacing="2" fill="#fff" fill-opacity=".35" font-family="sans-serif">${escH(p.brand.toUpperCase())}</text>
+  </g>
+  <!-- FRONT -->
+  <g transform="translate(160 36) rotate(7 52 106)">
+    <rect width="104" height="212" rx="20" fill="#06080e" stroke="${c1}" stroke-width="2.2"/>
+    <rect x="3.5" y="3.5" width="97" height="205" rx="17" fill="url(#${id}w)"/>
+    <circle cx="80" cy="150" r="42" fill="#fff" fill-opacity=".1"/>
+    <circle cx="18" cy="190" r="34" fill="#000" fill-opacity=".18"/>
+    <text x="52" y="72" text-anchor="middle" font-size="30" font-weight="800" fill="#fff" font-family="sans-serif">9:41</text>
+    <text x="52" y="88" text-anchor="middle" font-size="7.5" font-weight="600" fill="#fff" fill-opacity=".85" font-family="sans-serif">Monday, 2 November</text>
+    ${island}
+    <rect x="38" y="200" width="28" height="3" rx="1.5" fill="#fff" fill-opacity=".75"/>
+    <rect x="3.5" y="3.5" width="97" height="205" rx="17" fill="url(#${id}g)" opacity=".7"/>
+  </g>
+</svg>`;
+}
+
+
+/* Real photos uploaded by the store; a sample image is used when there are none */
+function phoneVisual(p, cls) {
+  const ph = (p.photos || []).filter(Boolean);
+  return ph.length
+    ? `<img src="${escH(ph[0])}" alt="${escH(p.name)} ${escH(p.color)}" loading="lazy" decoding="async" class="mx-auto w-auto object-contain ${cls || 'max-h-56'}" style="filter:drop-shadow(0 20px 22px rgba(0,0,0,.55))">`
+    : phoneSVG(p);
+}
+let slideIdx = 0, slideN = 0;
+function photoGallery(p, sold) {
+  const ph = (p.photos || []).filter(Boolean);
+  slideIdx = 0; slideN = ph.length;
+  if (!ph.length) return `<div class="w-[290px] max-w-full ${sold?'grayscale opacity-50':''}">${phoneSVG(p)}</div>`;
+  const multi = ph.length > 1;
+  const arrow = (d, side, ic, label) => `<button type="button" onclick="slideBy(${d})" aria-label="${label}" class="absolute ${side} top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/70 border border-slate-700 hover:border-cyan-400 text-white grid place-items-center z-10"><i class="fa-solid ${ic}"></i></button>`;
+  const thumbs = multi ? `<div class="flex gap-2 justify-center">${ph.map((s,i) => `<img src="${escH(s)}" alt="Photo ${i+1}" data-th="${i}" loading="lazy" decoding="async" onclick="slideTo(${i})" class="sl-th w-11 h-11 rounded-lg object-cover border-2 cursor-pointer transition ${i===0?'border-cyan-400':'border-slate-700 opacity-70'}">`).join('')}</div>` : '';
+  return `<div class="w-full px-4 py-2 flex flex-col items-center gap-2 ${sold?'grayscale opacity-60':''}">
+    <div id="slider" class="relative w-full overflow-hidden rounded-2xl select-none" style="touch-action:pan-y">
+      <div id="slideTrack" class="flex" style="transition:transform .45s cubic-bezier(.2,.8,.2,1)">
+        ${ph.map((s,i) => `<div class="w-full shrink-0 grid place-items-center"><img src="${escH(s)}" ${i>0?'loading="lazy"':''} decoding="async" alt="${escH(p.name)} photo ${i+1}" draggable="false" onclick="openLightbox(${i})" class="max-h-44 md:max-h-72 w-auto object-contain cursor-zoom-in" style="filter:drop-shadow(0 20px 22px rgba(0,0,0,.55))"></div>`).join('')}
+      </div>
+      ${multi ? arrow(-1,'left-1','fa-chevron-left','Previous photo') + arrow(1,'right-1','fa-chevron-right','Next photo') : ''}
+    </div>${thumbs}</div>`;
+}
+function slideTo(i) {
+  if (!slideN) return;
+  slideIdx = (i + slideN) % slideN;
+  const t = document.getElementById('slideTrack'); if (t) t.style.transform = `translateX(-${slideIdx * 100}%)`;
+  document.querySelectorAll('.sl-th').forEach(el => {
+    const on = +el.dataset.th === slideIdx;
+    el.classList.toggle('border-cyan-400', on); el.classList.toggle('border-slate-700', !on); el.classList.toggle('opacity-70', !on);
+  });
+}
+function slideBy(d) { slideTo(slideIdx + d); }
+(() => { let x0 = null, y0 = null;
+  document.addEventListener('touchstart', e => { if (e.target.closest('#slider')) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; } else x0 = null; }, {passive:true});
+  document.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) slideBy(dx < 0 ? 1 : -1);
+    x0 = null;
+  }, {passive:true});
+})();
+
+/* =====================================================
+   HEADER / STATIC CONTENT
+   ===================================================== */
+function initStatic() {
+  applyShopName();
+  $('#callBtn').href = $('#heroCall').href = $('#barCall').href = 'tel:' + STORE.phone;
+  const hello = waLink(`Hello ${STORE.name}! I would like to know more about your pre-owned phones.`);
+  $('#waHeaderBtn').href = $('#barWa').href = hello;
+  $('#sellBtn').href = waLink(`Hello ${STORE.name}! I would like to sell or exchange my old phone.\n\nModel: \nStorage: \nCondition: \nBox/Bill available? `);
+  $('#shortAddr').textContent = STORE.shortAddress;
+  $('#storeName').textContent = STORE.name;
+  $('#footName').textContent = STORE.name;
+  renderBranches(); applyLogo();
+  $('#stCust').textContent = STORE.customers; $('#stRating').textContent = STORE.rating; $('#stSince').textContent = STORE.since;
+  $('#offerText').textContent = STORE.offer || ''; $('#offerBar').classList.toggle('hidden', !STORE.offer);
+  $('#heroPhone').innerHTML = PHONES.length ? phoneVisual(PHONES[0], 'max-h-72') : '';
+  const items = PHONES.filter(p => p.stock).map(p => `<span class="px-5 whitespace-nowrap"><span class="text-emerald-400">●</span> ${escH(p.name)} <b class="text-white">${inr(p.price)}</b>${p.left===1?' <span class="text-amber-400">• Only 1 left</span>':''}</span>`).join('');
+  $('#ticker').innerHTML = items + items;
+}
+
+/* ---- Branches & contact numbers (up to 2) ---- */
+const waNum = n => { n = String(n || '').replace(/\D/g, ''); return n.length === 10 ? '91' + n : n; };
+function branches() {
+  const list = [{ label: STORE.branchName || 'Main Branch', address: STORE.address, phone: STORE.phone, wa: waNum(STORE.whatsapp || STORE.phone) }];
+  if (STORE.phone2 || STORE.address2) list.push({ label: STORE.branch2Name || 'Branch 2', address: STORE.address2, phone: STORE.phone2, wa: waNum(STORE.whatsapp2 || STORE.phone2) });
+  return list;
+}
+const contactsFor = t => branches().filter(b => t === 'call' ? b.phone : b.wa);
+function renderBranches() {
+  $('#branches').innerHTML = branches().map(b => `
+    <div class="glass border border-slate-800/80 rounded-3xl p-5">
+      <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-400"><i class="fa-solid fa-store mr-1"></i>${escH(b.label)}</p>
+      <p class="mt-2 text-sm text-slate-300">${escH(b.address)}</p>
+      ${b.phone ? `<p class="mt-1 text-sm text-slate-400"><i class="fa-solid fa-phone mr-1.5 text-cyan-400"></i>${escH(b.phone)}</p>` : ''}
+      <p class="mt-1 text-sm text-slate-400"><i class="fa-regular fa-clock mr-1.5 text-emerald-400"></i>${escH(STORE.hoursText)}</p>
+      <div class="mt-4 grid grid-cols-3 gap-2">
+        ${b.phone ? `<a href="tel:${escH(b.phone)}" class="py-2.5 rounded-xl border border-slate-700 bg-slate-900/70 text-center text-xs font-bold hover:border-cyan-400"><i class="fa-solid fa-phone mr-1 text-cyan-400"></i>Call</a>` : '<span></span>'}
+        ${b.wa ? `<a href="https://wa.me/${b.wa}?text=${encodeURIComponent('Hello ' + STORE.name + ' (' + b.label + ')!')}" target="_blank" rel="noopener" class="btn-wa py-2.5 rounded-xl text-white text-center text-xs font-bold"><i class="fa-brands fa-whatsapp mr-1"></i>Chat</a>` : '<span></span>'}
+        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(STORE.name + ' ' + (b.address || ''))}" target="_blank" rel="noopener" class="py-2.5 rounded-xl border border-cyan-500/50 bg-cyan-500/10 text-cyan-300 text-center text-xs font-bold"><i class="fa-solid fa-diamond-turn-right mr-1"></i>Map</a>
+      </div>
+    </div>`).join('');
+}
+/* With 2 numbers, Call / WhatsApp buttons open a small picker */
+function openContact(type) {
+  $('#cmTitle').textContent = type === 'call' ? 'Which branch do you want to call?' : 'Which branch do you want to WhatsApp?';
+  $('#cmList').innerHTML = contactsFor(type).map(b => {
+    const href = type === 'call' ? 'tel:' + b.phone : `https://wa.me/${b.wa}?text=${encodeURIComponent('Hello ' + STORE.name + ' (' + b.label + ')! I would like to know more about your pre-owned phones.')}`;
+    return `<a href="${escH(href)}" ${type === 'call' ? '' : 'target="_blank" rel="noopener"'} onclick="closeContact()" class="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-800 bg-slate-900/60 hover:border-cyan-400 transition">
+      <div class="w-10 h-10 rounded-xl grid place-items-center ${type === 'call' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-emerald-500/10 text-emerald-400'}"><i class="${type === 'call' ? 'fa-solid fa-phone' : 'fa-brands fa-whatsapp'}"></i></div>
+      <div class="min-w-0"><p class="text-sm font-bold text-white">${escH(b.label)}</p><p class="text-xs text-slate-400">${escH(type === 'call' ? b.phone : (b.phone || '+' + b.wa))}</p></div></a>`;
+  }).join('');
+  $('#cmenu').classList.remove('hidden');
+}
+function closeContact() { $('#cmenu').classList.add('hidden'); }
+/* "Book on WhatsApp": with 2 branches, ask which number to send the booking to */
+function openBook(p) {
+  $('#cmTitle').textContent = 'Book on WhatsApp — choose a number';
+  const own = branchOf(p);
+  $('#cmList').innerHTML = branches().map((b, i) => b.wa ? `
+    <a href="${escH(waLink(bookingMessage(p), b.wa))}" target="_blank" rel="noopener" onclick="closeContact()" class="flex items-center gap-3 p-3.5 rounded-2xl border ${i === own ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-slate-800 bg-slate-900/60'} hover:border-cyan-400 transition">
+      <div class="w-10 h-10 rounded-xl grid place-items-center bg-emerald-500/10 text-emerald-400"><i class="fa-brands fa-whatsapp"></i></div>
+      <div class="min-w-0 flex-1"><p class="text-sm font-bold text-white">${escH(b.label)}</p><p class="text-xs text-slate-400">${escH(b.phone || '+' + b.wa)}</p></div>
+      ${i === own ? '<span class="text-[10px] font-bold text-emerald-300">Phone is here</span>' : ''}
+    </a>` : '').join('');
+  $('#cmenu').classList.remove('hidden');
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-book]'); if (!a) return;
+  if (branches().filter(b => b.wa).length < 2) return;
+  const p = PHONES.find(x => x.id === +a.dataset.book); if (!p) return;
+  e.preventDefault(); openBook(p);
+});
+document.addEventListener('click', e => {
+  const a = e.target.closest('#callBtn,#heroCall,#barCall,#waHeaderBtn,#barWa'); if (!a) return;
+  const type = /call|Call/.test(a.id) ? 'call' : 'wa';
+  if (contactsFor(type).length < 2) return;
+  e.preventDefault(); openContact(type);
+});
+
+function updateOpenStatus() {
+  const h = new Date().getHours(), open = h >= STORE.openHour && h < STORE.closeHour;
+  const dot = $('#openDot'), txt = $('#openText');
+  txt.textContent = open ? 'Open Now' : `Closed • Opens at ${fmtHour(STORE.openHour)}`;
+  txt.className = 'font-semibold ' + (open ? 'text-emerald-400' : 'text-amber-400');
+  dot.className = (open ? 'pulse-dot ' : '') + 'relative inline-block w-2 h-2 rounded-full ' + (open ? 'bg-emerald-500' : 'bg-amber-500');
+}
+
+/* =====================================================
+   FILTERS
+   ===================================================== */
+function renderPills() {
+  $('#brandPills').innerHTML = BRANDS.map(b => {
+    const a = state.brand === b, ic = CAT_IMG[b] ? `<img src="${escH(CAT_IMG[b])}" alt="" loading="lazy" decoding="async" class="inline-block w-5 h-5 rounded-full object-cover mr-1.5 align-middle">` : BRAND_ICON[b] ? `<i class="${BRAND_ICON[b]} mr-1.5"></i>` : '';
+    return `<button data-brand="${escH(b)}" class="shrink-0 px-4 py-2 rounded-full border text-[13px] font-bold transition-all duration-300 ${a ? 'pill-active' : 'border-slate-800 bg-slate-900/70 text-slate-300 hover:border-cyan-500/60'}">${ic}${escH(b)}</button>`;
+  }).join('');
+}
+function renderChips() {
+  const bl = branches();
+  const all = bl.length > 1 ? [{ key:'brAll', label:'All Stores', icon:'fa-shop' }, { key:'br0', label:bl[0].label, icon:'fa-store' }, { key:'br1', label:bl[1].label, icon:'fa-store' }, { key:'__br' }, ...CHIPS] : CHIPS;
+  $('#quickChips').innerHTML = all.map(c => {
+    if (c.key === '__br') return '<div class="basis-full h-0"></div>';
+    const a = c.key === 'brAll' ? !state.chips.has('br0') && !state.chips.has('br1') : state.chips.has(c.key);
+    return `<button data-chip="${c.key}" class="shrink-0 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all duration-300 ${a ? 'bg-emerald-500/15 border-emerald-400 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,.35)]' : 'border-slate-800 bg-slate-900/50 text-slate-400 hover:text-white hover:border-slate-600'}"><i class="fa-solid ${c.icon} mr-1.5 text-[10px]"></i>${escH(c.label)}</button>`;
+  }).join('');
+}
+/* After any filter/sort change, jump back so the list starts right under the sticky filter bar */
+function scrollToGrid() {
+  requestAnimationFrame(() => {
+    const bar = $('#shop'), top = $('#grid').getBoundingClientRect().top + window.scrollY;
+    const sticky = getComputedStyle(bar).position === 'sticky';
+    const target = top - 64 - (sticky ? bar.offsetHeight : 0) - 12;
+    if (window.scrollY > target) window.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+  });
+}
+$('#brandPills').addEventListener('click', e => { const b = e.target.closest('[data-brand]'); if(!b) return; state.brand = b.dataset.brand; renderPills(); renderGrid(); b.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}); scrollToGrid(); });
+$('#quickChips').addEventListener('click', e => {
+  const c = e.target.closest('[data-chip]'); if(!c) return; const k=c.dataset.chip;
+  if (k === 'brAll') { state.chips.delete('br0'); state.chips.delete('br1'); }
+  else if (state.chips.has(k)) state.chips.delete(k);
+  else { CHIP_GROUPS.forEach(g => { if (g.includes(k)) g.forEach(x => state.chips.delete(x)); }); state.chips.add(k); }
+  renderChips(); renderGrid(); scrollToGrid();
+});
+$('#search').addEventListener('input', e => { state.q = e.target.value.trim().toLowerCase(); renderGrid(); });
+$('#sort').addEventListener('change', e => { state.sort = e.target.value; renderGrid(); scrollToGrid(); });
+$('#resetBtn').addEventListener('click', () => { state.q=''; state.brand='All'; state.chips.clear(); state.sort='featured'; $('#search').value=''; $('#sort').value='featured'; renderPills(); renderChips(); renderGrid(); });
+
+function filtered() {
+  let list = PHONES.filter(p => {
+    if (state.brand !== 'All' && p.brand !== state.brand) return false;
+    if (state.chips.has('under5') && p.price >= 5000) return false;
+    if (state.chips.has('under10') && p.price >= 10000) return false;
+    if (state.chips.has('under15') && p.price >= 15000) return false;
+    if (state.chips.has('g4') && netOf(p) !== '4G') return false;
+    if (state.chips.has('g5') && netOf(p) !== '5G') return false;
+    if (state.chips.has('offer') && !isOffer(p)) return false;
+    if (state.chips.has('openbox') && !/^open\s*box$/i.test((p.condition || '').trim())) return false;
+    if (state.chips.has('sealcut') && !/^seal\s*cut$/i.test((p.condition || '').trim())) return false;
+    if (state.chips.has('br0') && branchOf(p) !== 0) return false;
+    if (state.chips.has('br1') && branchOf(p) !== 1) return false;
+    if (state.chips.has('flagship') && !p.flagship) return false;
+    if (state.chips.has('battery85') && p.battery < 85) return false;
+    if (state.q) {
+      const hay = `${p.brand} ${p.name} ${p.color} ${p.ram}gb ${p.storage}gb ${p.ram}gb/${p.storage}gb ${p.ram}/${p.storage} ${p.storage}`.toLowerCase();
+      return state.q.split(/\s+/).every(t => hay.includes(t));
+    }
+    return true;
+  });
+  const s = state.sort;
+  const cmp = s === 'low' ? (a,b)=>a.price-b.price
+    : s === 'high' ? (a,b)=>b.price-a.price
+    : s === 'battery' ? (a,b)=>b.battery-a.battery
+    : s === 'save' ? (a,b)=>saving(b)-saving(a)
+    : () => 0;
+  list.sort((a,b) => (Number(!!b.stock) - Number(!!a.stock)) || cmp(a,b));   // in-stock always first, sold out last
+  return list;
+}
+
+/* =====================================================
+   CARDS
+   ===================================================== */
+const condColor = c => c==='Mint' ? 'from-emerald-400 to-cyan-400' : c==='Superb' ? 'from-cyan-400 to-sky-400' : c==='Open box' ? 'from-violet-400 to-fuchsia-400' : c==='Seal cut' ? 'from-orange-400 to-rose-400' : 'from-amber-300 to-yellow-400';
+const escH = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const condNoteHTML = (p, cls) => p.condNote ? `<p class="${cls}"><i class="fa-solid fa-circle-info mr-1.5 text-cyan-400"></i>${escH(p.condNote)}</p>` : '';
+const batColor = b => b>=90 ? 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10' : b>=85 ? 'text-cyan-300 border-cyan-500/30 bg-cyan-500/10' : 'text-amber-300 border-amber-500/30 bg-amber-500/10';
+const spot = p => `background: radial-gradient(circle at 50% 72%, ${p.glow}55, transparent 62%), radial-gradient(circle at 50% 0%, rgba(255,255,255,.05), transparent 60%), linear-gradient(180deg,#0b1226,#060a17);`;
+
+function cardHTML(p, i) {
+  const sold = !p.stock, pct = Math.round(saving(p)/p.mrp*100);
+  return `
+  <article class="card fade-up glass border border-slate-800/80 rounded-3xl overflow-hidden flex flex-col" style="animation-delay:${i*60}ms">
+    <div class="relative h-60 cursor-pointer overflow-hidden grid place-items-center" style="${spot(p)}" data-open="${p.id}">
+      <div class="ph w-[260px] ${sold ? 'grayscale opacity-50' : ''}">${phoneVisual(p)}</div>
+      <span class="absolute top-3 left-3 text-[11px] font-extrabold text-slate-950 bg-gradient-to-r ${condColor(p.condition)} px-2.5 py-1 rounded-full shadow-lg">${escH(p.condition)} ${escH(p.score)}</span>
+      <span class="absolute top-3 right-3 text-[11px] font-extrabold text-white bg-rose-500/90 px-2.5 py-1 rounded-full shadow-lg">${pct}% OFF</span>
+      ${ytId(p.yt) ? `<span class="vbadge absolute top-12 left-3 text-[10px] font-extrabold text-emerald-200 bg-slate-950/75 backdrop-blur border border-emerald-400/60 px-2.5 py-1 rounded-full"><i class="fa-solid fa-play mr-1"></i>Video</span>` : ''}
+      ${!sold && p.tag ? `<span class="absolute bottom-3 left-3 text-[10px] font-bold text-cyan-200 bg-slate-950/70 backdrop-blur border border-cyan-500/30 px-2.5 py-1 rounded-full">${escH(p.tag)}</span>` : ''}
+      ${!sold && p.left <= 2 ? `<span class="absolute bottom-3 right-3 text-[10px] font-bold text-amber-300 bg-slate-950/70 backdrop-blur border border-amber-500/30 px-2.5 py-1 rounded-full">🔥 Only ${p.left} left</span>` : ''}
+      ${sold ? `<div class="absolute inset-0 grid place-items-center bg-slate-950/40"><span class="rotate-[-8deg] px-5 py-2 rounded-xl border-2 border-red-500/80 text-red-400 font-black tracking-widest text-lg bg-slate-950/70">SOLD OUT</span></div>` : ''}
+    </div>
+    <div class="p-4 flex flex-col flex-1">
+      <p class="text-[11px] uppercase tracking-widest text-slate-500 font-bold">${escH(p.brand)}</p>
+      <h4 class="text-lg font-extrabold text-white leading-tight">${escH(p.name)}</h4>
+      <p class="text-xs text-slate-500 mt-0.5">${escH(p.color)} • ${escH(p.age)}</p>
+      ${branchTag(p, 'text-[11px] text-emerald-300 font-bold mt-1')}
+      ${condNoteHTML(p, 'text-xs text-cyan-300/90 mt-1.5 font-semibold')}
+      <div class="flex flex-wrap gap-1.5 mt-3">
+        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-700 bg-slate-900 text-slate-200"><i class="fa-solid fa-memory mr-1 text-cyan-400"></i>${specStr(p)}</span>
+          ${p.network ? `<span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300"><i class="fa-solid fa-signal mr-1"></i>${escH(p.network)}</span>` : ''}
+        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${batColor(p.battery)}">🔋 ${p.battery}% Health</span>
+        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-700 bg-slate-900 text-slate-300">📦 ${escH(p.box)}</span>
+      </div>
+      <div class="mt-4 flex items-end justify-between gap-2">
+        <div><p class="text-[26px] leading-none font-extrabold text-white tracking-tight">${inr(p.price)}</p><p class="text-xs text-slate-500 line-through mt-1">MRP ${inr(p.mrp)}</p></div>
+        <span class="text-[11px] font-extrabold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg shadow-[0_0_16px_rgba(16,185,129,.22)]">You Save ${inr(saving(p))}</span>
+      </div>
+      <div class="grid grid-cols-5 gap-2 mt-4">
+        <button data-open="${p.id}" class="col-span-2 py-3 rounded-xl border border-slate-700 bg-slate-900/70 hover:border-cyan-400 hover:text-cyan-300 text-xs font-bold transition"><i class="fa-solid fa-list-check mr-1"></i>Quick Specs</button>
+        ${sold
+          ? `<a href="${waLink(notifyMessage(p))}" target="_blank" rel="noopener" class="col-span-3 py-3 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs font-bold text-center hover:bg-amber-500/20 transition"><i class="fa-regular fa-bell mr-1.5"></i>Notify Me</a>`
+          : `<a href="${waLink(bookingMessage(p), branchWa(p))}" data-book="${p.id}" target="_blank" rel="noopener" class="btn-wa col-span-3 py-3 rounded-xl text-white text-xs font-extrabold text-center"><i class="fa-brands fa-whatsapp mr-1.5 text-sm"></i>Book on WhatsApp</a>`}
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderGrid() {
+  if (!phonesLoaded) { $('#grid').innerHTML = '<div class="col-span-full text-center py-16 text-slate-500 text-sm"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading phones…</div>'; $('#empty').classList.add('hidden'); $('#resultCount').textContent = ''; return; }
+  const list = filtered();
+  $('#grid').innerHTML = list.map(cardHTML).join('');
+  $('#empty').classList.toggle('hidden', list.length > 0);
+  $('#resultCount').textContent = `${list.length} phone${list.length !== 1 ? 's' : ''}`;
+  if (!list.length) {
+    const q = $('#search').value.trim() || (state.brand !== 'All' ? state.brand : 'a phone');
+    $('#requestBtn').href = waLink(`Hello ${STORE.name}! I am looking for: ${q}. Do you have it, or can you arrange it?`);
+  }
+}
+$('#grid').addEventListener('click', e => { const o = e.target.closest('[data-open]'); if (o) openModal(+o.dataset.open); });
+
+/* =====================================================
+   MODAL
+   ===================================================== */
+function diagnostics(p) {
+  const ios = p.os === 'iOS';
+  const base = [
+    { icon:'fa-camera', label:'Rear & Front Camera', note:'Focus, stabilization and flash working' },
+    { icon:'fa-hand-pointer', label:'Touch & Display', note:'No dead pixels or ghost touch' },
+    { icon: ios?'fa-face-smile':'fa-fingerprint', label: ios?'Face ID':'Fingerprint / Face Unlock', note:'Registers instantly' },
+    { icon:'fa-sun', label: ios?'True Tone':'Display Colour & Refresh Rate', note: ios?'Active and calibrated':'Smooth and calibrated' },
+    { icon:'fa-signal', label:'Network 5G / 4G / Wi-Fi', note:'SIM, 5G bands, Bluetooth OK' },
+    { icon:'fa-volume-high', label:'Speaker & Microphone', note:'Clear for calls and music' },
+    { icon:'fa-plug', label:'Charging & Buttons', note:'Port, power, volume keys OK' },
+    { icon:'fa-lock', label:'iCloud / Google Lock', note:'Fully unlocked, clean IMEI' }
+  ];
+  base.push({ icon:'fa-mobile', label:'Body & Frame', note:'No dents or cracks' });
+  const alias = {
+    camera:'Rear & Front Camera', lens:'Rear & Front Camera', flash:'Rear & Front Camera',
+    touch:'Touch & Display', display:'Touch & Display', screen:'Touch & Display', lcd:'Touch & Display', pixel:'Touch & Display',
+    face:ios?'Face ID':'Fingerprint / Face Unlock', fingerprint:'Fingerprint / Face Unlock',
+    tone:ios?'True Tone':'Display Colour & Refresh Rate', refresh:'Display Colour & Refresh Rate', colour:'Display Colour & Refresh Rate', color:'Display Colour & Refresh Rate',
+    network:'Network 5G / 4G / Wi-Fi', sim:'Network 5G / 4G / Wi-Fi', wifi:'Network 5G / 4G / Wi-Fi', 'wi-fi':'Network 5G / 4G / Wi-Fi', bluetooth:'Network 5G / 4G / Wi-Fi', signal:'Network 5G / 4G / Wi-Fi',
+    speaker:'Speaker & Microphone', mic:'Speaker & Microphone', microphone:'Speaker & Microphone', sound:'Speaker & Microphone',
+    charging:'Charging & Buttons', charger:'Charging & Buttons', port:'Charging & Buttons', button:'Charging & Buttons', buttons:'Charging & Buttons', power:'Charging & Buttons', volume:'Charging & Buttons',
+    icloud:'iCloud / Google Lock', google:'iCloud / Google Lock', lock:'iCloud / Google Lock', imei:'iCloud / Google Lock',
+    body:'Body & Frame', frame:'Body & Frame', back:'Body & Frame', panel:'Body & Frame', scratch:'Body & Frame', dent:'Body & Frame', crack:'Body & Frame', glass:'Body & Frame', side:'Body & Frame', sides:'Body & Frame'
+  };
+  Object.entries(p.warn || {}).forEach(([key, note]) => {
+    if (!note) return;
+    const k = String(key).trim();
+    const tokens = k.split(/[\/,&+]| and /i).map(t => t.trim().toLowerCase()).filter(Boolean);
+    let hit = false;
+    tokens.forEach(t => {
+      const target = alias[t] || (base.find(d => d.label.toLowerCase().includes(t)) || {}).label;
+      const row = target && base.find(d => d.label === target);
+      if (row) { row.note = note; row.warn = true; hit = true; }
+    });
+    if (!hit) base.push({ icon:'fa-triangle-exclamation', label:k || 'Note', note, warn:true });
+  });
+  return base;
+}
+
+/* YouTube: supports watch?v=, youtu.be/, /shorts/, /embed/ and /live/ links (or a bare 11-character id) */
+function ytId(u) {
+  u = String(u || '').trim(); if (!u) return '';
+  if (/^[A-Za-z0-9_-]{11}$/.test(u)) return u;
+  const m = u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
+function videoBlock(p) {
+  const id = ytId(p.yt); if (!id) return '';
+  return `<div class="px-5 pb-4">
+      <h4 class="text-sm font-extrabold text-white flex items-center gap-2"><i class="fa-solid fa-circle-play text-cyan-400"></i> Phone Video <span class="text-[10px] font-semibold text-slate-500">• real condition of the phone</span></h4>
+      <div id="ytBox" data-yt="${id}" onclick="playYT(this)" role="button" aria-label="Play video" class="relative mt-3 mx-auto w-full max-w-[260px] aspect-[9/16] rounded-3xl overflow-hidden border border-cyan-500/30 bg-black cursor-pointer shadow-[0_0_30px_-8px_rgba(6,182,212,.5)]">
+        <img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="Video preview" loading="lazy" decoding="async" class="w-full h-full object-cover opacity-90">
+        <span class="absolute inset-0 grid place-items-center"><span class="w-16 h-16 rounded-full bg-red-600/90 grid place-items-center text-white text-2xl shadow-lg"><i class="fa-solid fa-play ml-1"></i></span></span>
+      </div>
+    </div>`;
+}
+/* The player is created only after the customer taps the thumbnail (nothing plays or downloads before that) */
+function playYT(el) {
+  const id = el.dataset.yt; if (!id || el.dataset.on) return; el.dataset.on = '1';
+  el.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1" title="Phone video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy" class="w-full h-full border-0"></iframe>`;
+}
+function openModal(id, refresh) {
+  const p = PHONES.find(x => x.id === id); if (!p) return;
+  openId = id; openSig = JSON.stringify(p);
+  const keep = refresh ? $('#modalBody').scrollTop : 0;
+  const sold = !p.stock, diag = diagnostics(p);
+  $('#modalBody').innerHTML = `
+    <div class="md:grid md:grid-cols-2">
+      <div class="relative h-64 md:h-full md:min-h-[380px] grid place-items-center overflow-hidden" style="${spot(p)}">
+        ${photoGallery(p, sold)}
+        <span class="absolute bottom-3 left-4 text-[11px] font-extrabold text-slate-950 bg-gradient-to-r ${condColor(p.condition)} px-2.5 py-1 rounded-full">${escH(p.condition)} ${escH(p.score)}</span>
+      </div>
+      <div class="p-5">
+        <p class="text-[11px] uppercase tracking-widest text-cyan-400 font-bold">${escH(p.brand)}</p>
+        <h3 id="mTitle" class="text-2xl font-extrabold text-white leading-tight">${escH(p.name)}</h3>
+        <p class="text-xs text-slate-500 mt-1">${escH(p.color)} • ${escH(p.age)}</p>
+        ${branchTag(p, 'text-xs text-emerald-300 font-bold mt-1.5')}
+        ${condNoteHTML(p, 'text-xs text-cyan-300/90 mt-2 font-semibold')}
+        <div class="flex items-end gap-3 mt-3 flex-wrap">
+          <p class="text-3xl font-extrabold text-white">${inr(p.price)}</p>
+          <p class="text-sm text-slate-500 line-through pb-1">${inr(p.mrp)}</p>
+          <span class="text-[11px] font-extrabold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-lg mb-1">Save ${inr(saving(p))}</span>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mt-4">
+          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-700 bg-slate-900"><i class="fa-solid fa-memory mr-1 text-cyan-400"></i>${specStr(p)}</span>
+          ${p.network ? `<span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300"><i class="fa-solid fa-signal mr-1"></i>${escH(p.network)}</span>` : ''}
+          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${batColor(p.battery)}">🔋 ${p.battery}% Health</span>
+          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-700 bg-slate-900">📦 ${escH(p.box)}</span>
+        </div>
+        <p class="mt-3 text-xs text-slate-400"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1.5"></i>${escH(p.warranty)}</p>
+      </div>
+    </div>
+    ${videoBlock(p)}
+    <div class="px-5 pb-5">
+      <h4 class="text-sm font-extrabold text-white flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-emerald-400"></i> Diagnostic Report <span class="text-[10px] font-semibold text-slate-500">• 32-point inspection</span></h4>
+      <ul class="mt-3 grid sm:grid-cols-2 gap-2">
+        ${diag.map(d => `
+        <li class="flex items-start gap-3 p-3 rounded-2xl border ${d.warn?'border-amber-500/30 bg-amber-500/5':'border-slate-800 bg-slate-900/50'}">
+          <div class="w-9 h-9 shrink-0 rounded-xl grid place-items-center ${d.warn?'bg-amber-500/15 text-amber-300':'bg-emerald-500/10 text-emerald-400'}"><i class="fa-solid ${d.icon} text-sm"></i></div>
+          <div class="min-w-0 flex-1"><p class="text-[13px] font-bold text-white leading-tight">${escH(d.label)}</p><p class="text-[11px] ${d.warn?'text-amber-300/90':'text-slate-500'} mt-0.5">${escH(d.note)}</p></div>
+          <i class="fa-solid ${d.warn?'fa-circle-exclamation text-amber-400':'fa-circle-check text-emerald-400'} mt-1"></i>
+        </li>`).join('')}
+      </ul>
+      <p class="mt-4 text-[11px] text-slate-500 leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i>Please test the phone yourself in store before paying. Every phone comes with an original bill and ID verification.</p>
+    </div>`;
+  $('#modalFooter').innerHTML = sold
+    ? `<a href="${waLink(notifyMessage(p))}" target="_blank" rel="noopener" class="block w-full text-center py-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 text-amber-300 font-bold hover:bg-amber-500/20 transition"><i class="fa-regular fa-bell mr-2"></i>Sold Out — Notify me when available</a>`
+    : `<a href="${waLink(bookingMessage(p), branchWa(p))}" data-book="${p.id}" target="_blank" rel="noopener" class="btn-wa shine block w-full text-center py-4 rounded-2xl text-white font-extrabold text-[15px]"><i class="fa-brands fa-whatsapp mr-2 text-lg"></i>Confirm Booking on WhatsApp</a>`;
+  if (!refresh && !modalPushed) { history.pushState({m:1}, ''); modalPushed = true; }
+  $('#modalRoot').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  $('#modalBody').scrollTop = keep;
+  if (refresh) { $('#overlay').classList.remove('opacity-0'); $('#sheet').classList.remove('closed'); }
+  else requestAnimationFrame(() => requestAnimationFrame(() => { $('#overlay').classList.remove('opacity-0'); $('#sheet').classList.remove('closed'); }));
+}
+function _closeModal() {
+  _closeLightbox(); openId = null; const mv = $('#mVid'); if (mv) mv.pause();
+  $('#overlay').classList.add('opacity-0'); $('#sheet').classList.add('closed');
+  setTimeout(() => { $('#modalRoot').classList.add('hidden'); document.body.style.overflow = ''; }, 350);
+}
+/* Back button support: modal & lightbox each take one history step */
+let modalPushed = false, lbPushed = false;
+function closeModal() { if (modalPushed) history.go(lbPushed ? -2 : -1); else _closeModal(); }
+window.addEventListener('popstate', e => {
+  const st = e.state || {};
+  if (!st.l && lbPushed) { _closeLightbox(); lbPushed = false; }
+  if (!st.m && modalPushed) { _closeModal(); modalPushed = false; }
+});
+$('#closeModal').addEventListener('click', closeModal);
+$('#overlay').addEventListener('click', closeModal);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#modalRoot').classList.contains('hidden')) closeModal(); });
+(() => { const s = $('#sheet'); let y0 = null;
+  s.addEventListener('touchstart', e => { if ($('#modalBody').scrollTop <= 0) y0 = e.touches[0].clientY; }, {passive:true});
+  s.addEventListener('touchend', e => { if (y0 !== null && e.changedTouches[0].clientY - y0 > 110) closeModal(); y0 = null; }, {passive:true});
+})();
+
+/* =====================================================
+   LIVE SYNC — changes from the admin panel appear here instantly
+   ===================================================== */
+const toArr = v => v ? (Array.isArray(v) ? v.filter(Boolean) : Object.values(v)) : [];
+function rebuildBrands() {
+  BRANDS.length = 0; BRANDS.push('All'); HIDDEN_CATS.clear(); Object.keys(CAT_IMG).forEach(k => delete CAT_IMG[k]);
+  (rawCats || []).filter(c => c.name).forEach(c => { if (c.show === false) { HIDDEN_CATS.add(c.name); return; } BRANDS.push(c.name); if (c.img) CAT_IMG[c.name] = c.img; });
+  PHONES.forEach(p => { if (!BRANDS.includes(p.brand) && !HIDDEN_CATS.has(p.brand)) BRANDS.push(p.brand); });
+  if (!BRANDS.includes(state.brand)) state.brand = 'All';
+}
+function refreshAll() {
+  initStatic(); updateOpenStatus(); renderPills(); renderChips(); renderGrid();
+  if (openId !== null) {
+    const p = PHONES.find(x => x.id === openId);
+    if (!p) closeModal(); else if (JSON.stringify(p) !== openSig) openModal(openId, true);
+  }
+}
+let _rt; const schedule = () => { clearTimeout(_rt); _rt = setTimeout(refreshAll, 60); };
+
+/* Catalog cache. Each visit reads only stores/<id>/meta/lastUpdated (a few bytes). If it matches the copy in
+   localStorage the phones are shown straight from the cache (0 KB catalog download). The full catalog is
+   downloaded again only when the admin changed something, or when nothing is cached yet. */
+const cacheKey = () => 'shopcache_v1_' + STORE_ID;
+function readCache() {
+  try { const c = JSON.parse(localStorage.getItem(cacheKey()) || 'null'); return c && Array.isArray(c.phones) ? c : null; } catch (e) { return null; }
+}
+function writeCache(c) { try { localStorage.setItem(cacheKey(), JSON.stringify(c)); } catch (e) {} }
+let appliedTs = null, lastCheck = 0, syncing = false;
+function applyData(d) {
+  appliedTs = d.ts;
+  Object.assign(STORE, d.store || {}); applyShopName();
+  rawCats = d.cats || [];
+  PHONES.length = 0; (d.phones || []).forEach(p => { p.photos = toArr(p.photos); PHONES.push(p); });
+  phonesLoaded = true; rebuildBrands(); schedule();
+}
+const fbRead = r => (r.get ? r.get() : r.once('value'));
+async function syncCatalog() {
+  if (syncing) return; syncing = true; lastCheck = Date.now();
+  const root = firebase.database().ref(`stores/${STORE_ID}`), cache = readCache();
+  try {
+    let ts = null;
+    try { ts = (await fbRead(root.child('meta/lastUpdated'))).val(); } catch (e) { ts = null; }
+    const fresh = cache && ((ts && cache.ts === ts) || (!ts && Date.now() - (cache.at || 0) < 15 * 60 * 1000));
+    if (fresh) { if (appliedTs !== cache.ts) applyData(cache); return; }
+    const [s, c, p] = await Promise.all([fbRead(root.child('store')), fbRead(root.child('cats')), fbRead(root.child('phones'))]);
+    const data = { ts: ts || Date.now(), at: Date.now(), store: s.val() || {}, cats: toArr(c.val()), phones: toArr(p.val()).map(x => Object.assign({}, x, { photos: toArr(x.photos) })) };
+    writeCache(data); applyData(data);
+  } catch (err) {
+    if (cache) applyData(cache);
+    else $('#grid').innerHTML = '<div class="col-span-full text-center py-16 text-red-400 text-sm">Could not load phones: ' + err.message + '</div>';
+  } finally { syncing = false; }
+}
+const startSync = syncCatalog;
+/* Coming back to an old open tab: re-check the tiny value (not more than once every 5 minutes) */
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && phonesLoaded && Date.now() - lastCheck > 5 * 60 * 1000) syncCatalog(); });
+/* Pick the store from the website link: ?store=<id>, else domains/<this-host> in the database */
+async function resolveStoreId(){
+  const q = new URLSearchParams(location.search).get('store');
+  if (q && /^[A-Za-z0-9_-]+$/.test(q)) return q;
+  try {
+    const key = location.hostname.replace(/[.#$\[\]\/]/g, '_');
+    const dk = 'domcache_v1_' + key;
+    try { const c = JSON.parse(localStorage.getItem(dk) || 'null'); if (c && c.sid && Date.now() - c.at < 86400000) return c.sid; } catch (e) {}
+    const v = (await firebase.database().ref('domains/' + key).once('value')).val();
+    if (typeof v === 'string' && v) { try { localStorage.setItem(dk, JSON.stringify({ sid: v, at: Date.now() })); } catch (e) {} return v; }
+  } catch (e) {}
+  return DEFAULT_STORE_ID;
+}
+resolveStoreId().then(id => { STORE_ID = id; startSync(); });
+
+/* ===== FULL-SCREEN PHOTO VIEWER (pinch / wheel / double-tap zoom, drag to move) ===== */
+let lbList = [], lbIdx = 0, lbSc = 1, lbX = 0, lbY = 0;
+const lbEl = $('#lb'), lbStage = $('#lbStage'), lbImg = $('#lbImg'), lbPts = new Map();
+let lbD0 = 0, lbS0 = 1, lbDrag = null, lbTap = 0, lbMoved = false;
+function lbApply() { lbImg.style.transition = lbPts.size ? 'none' : 'transform .2s'; lbImg.style.transform = `translate(${lbX}px,${lbY}px) scale(${lbSc})`; }
+function lbClamp() {
+  if (lbSc <= 1) { lbX = lbY = 0; return; }
+  const mx = Math.max(0, (lbImg.clientWidth * lbSc - lbStage.clientWidth) / 2), my = Math.max(0, (lbImg.clientHeight * lbSc - lbStage.clientHeight) / 2);
+  lbX = Math.max(-mx, Math.min(mx, lbX)); lbY = Math.max(-my, Math.min(my, lbY));
+}
+function lbZoom(f) { lbSc = Math.min(5, Math.max(1, lbSc * f)); lbClamp(); lbApply(); }
+function lbReset() { lbSc = 1; lbX = lbY = 0; lbApply(); }
+function lbShow(i) {
+  lbIdx = (i + lbList.length) % lbList.length; lbImg.src = lbList[lbIdx]; lbReset();
+  $('#lbPrev').classList.toggle('hidden', lbList.length < 2); $('#lbNext').classList.toggle('hidden', lbList.length < 2);
+}
+function lbGo(d) { lbShow(lbIdx + d); }
+function openLightbox(i) {
+  const p = PHONES.find(x => x.id === openId); if (!p) return;
+  lbList = (p.photos || []).filter(Boolean); if (!lbList.length) return;
+  lbShow(i); lbEl.classList.remove('hidden');
+  if (!lbPushed) { history.pushState({m:1, l:1}, ''); lbPushed = true; }
+}
+function _closeLightbox() { lbEl.classList.add('hidden'); lbImg.removeAttribute('src'); lbPts.clear(); }
+function closeLightbox() { if (lbPushed) history.back(); else _closeLightbox(); }
+const lbDist = () => { const a = [...lbPts.values()]; return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); };
+lbStage.addEventListener('pointerdown', e => {
+  lbStage.setPointerCapture(e.pointerId); lbPts.set(e.pointerId, {x:e.clientX, y:e.clientY}); lbMoved = false;
+  if (lbPts.size === 2) { lbD0 = lbDist(); lbS0 = lbSc; } else lbDrag = {x:e.clientX, y:e.clientY, tx:lbX, ty:lbY};
+});
+lbStage.addEventListener('pointermove', e => {
+  if (!lbPts.has(e.pointerId)) return;
+  lbPts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if (lbPts.size === 2 && lbD0) { lbMoved = true; lbSc = Math.min(5, Math.max(1, lbS0 * lbDist() / lbD0)); lbClamp(); lbApply(); }
+  else if (lbDrag) {
+    const dx = e.clientX - lbDrag.x, dy = e.clientY - lbDrag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 8) lbMoved = true;
+    if (lbSc > 1) { lbX = lbDrag.tx + dx; lbY = lbDrag.ty + dy; lbClamp(); lbApply(); }
+  }
+});
+const lbUp = e => {
+  const wasOne = lbPts.size === 1; lbPts.delete(e.pointerId);
+  if (lbPts.size === 1) { const r = [...lbPts.values()][0]; lbDrag = {x:r.x, y:r.y, tx:lbX, ty:lbY}; }
+  if (lbPts.size === 0) {
+    lbDrag = null; lbD0 = 0; lbApply();
+    if (wasOne && !lbMoved) { const n = Date.now(); if (n - lbTap < 300) { lbSc > 1 ? lbReset() : (lbSc = 2.5, lbApply()); lbTap = 0; } else lbTap = n; }
+  }
+};
+lbStage.addEventListener('pointerup', lbUp); lbStage.addEventListener('pointercancel', lbUp);
+lbStage.addEventListener('wheel', e => { e.preventDefault(); lbZoom(e.deltaY < 0 ? 1.15 : 1/1.15); }, {passive:false});
+document.addEventListener('keydown', e => {
+  if (lbEl.classList.contains('hidden')) return;
+  if (e.key === 'Escape') { closeLightbox(); e.stopImmediatePropagation(); }
+  else if (e.key === 'ArrowLeft') lbGo(-1); else if (e.key === 'ArrowRight') lbGo(1);
+}, true);
+
+/* INIT */
+initStatic(); updateOpenStatus(); setInterval(updateOpenStatus, 60000);
+renderPills(); renderChips(); renderGrid();
+</script>
+</body>
+</html>
