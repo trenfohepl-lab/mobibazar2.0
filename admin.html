@@ -139,7 +139,7 @@ const CLOUDINARY_CLOUD_NAME = "xtzxhfrp";          // now used ONLY for the priv
 const CLOUDINARY_UPLOAD_PRESET = "mobibazar_preset";
 /* Phone photos, logo and category images go to your Cloudflare Worker (GitHub + jsDelivr CDN).
    Put your Worker address here, e.g. https://photo-worker.yourname.workers.dev */
-const WORKER_URL = "https://YOUR-WORKER.YOUR-SUBDOMAIN.workers.dev";
+const WORKER_URL = "https://mobibazar-photos.aiboyfriend.workers.dev/";
 const workerOk = () => /^https:\/\/.+/.test(WORKER_URL) && !WORKER_URL.includes('YOUR-WORKER');
 const isCdnUrl = u => /^https:\/\/cdn\.jsdelivr\.net\/gh\//.test(String(u || ''));
 function getSecret(reset){
